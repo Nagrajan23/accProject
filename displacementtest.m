@@ -4,6 +4,7 @@
 
 % Test Commit Nag 3
 % Test Commit Nag 4
+%Test 6
 
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
 %accx = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accx.txt')
