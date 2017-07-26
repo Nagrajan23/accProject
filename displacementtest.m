@@ -23,6 +23,7 @@
 <<<<<<< HEAD
 % Testing again 23 - Nagrajan
 =======
+% Line 23 please
 >>>>>>> 127e3d91bb5e8ebf23023feb144cadf82de3a05a
 
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
