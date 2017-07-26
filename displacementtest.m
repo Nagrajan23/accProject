@@ -66,7 +66,10 @@ order = 6; % 6th Order Filter
 
 [b1 a1] = butter(order,fc,'low');
 
-magNoGf=filtfilt(b1,a1,magNoG);
+% magNoGf=filtfilt(b1,a1,magNoG);
+hoursPerDay = 34060;
+coeff24hMA = ones(1, hoursPerDay)/hoursPerDay;
+magNoGf =filter(coeff24hMA,1,magNoG)
 % accxf = accx;
 % accyf=filtfilt(b1,a1,accy);
 % acczf=filtfilt(b1,a1,accz);
