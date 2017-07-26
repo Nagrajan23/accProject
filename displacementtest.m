@@ -1,7 +1,7 @@
 %clc
 %clear all
 %close all
-% Changed line 4- Nag
+% hello to nag
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
 %accx = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accx.txt')
 %accy = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accy.txt')
@@ -54,7 +54,7 @@ plot(time,magNoG,'r')
 xlabel('Time (sec)')
 ylabel('Minus mean Acceleration (m/sec^2)')
 
-%% Design High Pass Filter
+%% High Pass Filter Paramters
 
 fs = 10; % Sampling Rate
 
