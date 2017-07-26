@@ -13,6 +13,7 @@
 
 % Now added line 14 - Nagrajan
 % Now added line 15 - Nagrajan
+% it's just too much
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
 %accx = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accx.txt')
 %accy = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accy.txt')
