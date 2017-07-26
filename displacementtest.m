@@ -2,35 +2,6 @@
 %clear all
 %close all
 
-% Test Commit Nag 3
-% Test Commit Nag 4
-%Test 6
-
-% We both add a line here - Nagrajan
-%Hello Nag
-
-
-
-% Now added line 14 - Nagrajan
-% Now added line 15 - Nagrajan
-% it's just too much
-% Now added line 16 - Nagrajan
-% Now added line 18 - Nagrajan
-% It'sss just way too much
-% It's just way to way much line 20
-
-% Testing again 20 - Nagrajan
-
-% Testing again 23 - Nagrajan
-
-% Line 23 please
-% Testing again 27 - Nagrajan
-
-% Line 27 is ONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
-% Line 30 is good to go
-% Testing again 30 - Nagrajan
-% Line 32 is good to go
-% Line 32 is the final line to commit changes
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
 %accx = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accx.txt')
 %accy = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accy.txt')
@@ -41,8 +12,7 @@ time = t;
 accx = a(:,1);
 accy = a(:,2);
 accz = a(:,3);
-%  Hello to the world of legions
-%  Hello to the world of warriors
+
 % aa = a(7563:10332,:);
 % accx = aa(:,1);
 % accy = aa(:,2);
