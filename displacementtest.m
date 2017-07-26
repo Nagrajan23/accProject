@@ -17,6 +17,7 @@
 % Now added line 16 - Nagrajan
 % Now added line 18 - Nagrajan
 % It'sss just way too much
+% It's just way to way much line 20
 
 
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
