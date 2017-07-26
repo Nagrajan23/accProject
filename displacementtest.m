@@ -23,6 +23,7 @@ accx = a(:,1);
 accy = a(:,2);
 accz = a(:,3);
 %  Hello to the world of legions
+%  Hello to the world of warriors
 % aa = a(7563:10332,:);
 % accx = aa(:,1);
 % accy = aa(:,2);
