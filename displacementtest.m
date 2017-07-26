@@ -24,7 +24,11 @@
 % Testing again 23 - Nagrajan
 
 % Line 23 please
+<<<<<<< HEAD
 % Testing again 27 - Nagrajan
+=======
+
+>>>>>>> 82c5b4b82b0cdd637f1bbe1374b4aa009414f298
 
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
 %accx = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accx.txt')
