@@ -20,11 +20,11 @@
 % It's just way to way much line 20
 
 % Testing again 20 - Nagrajan
-<<<<<<< HEAD
+
 % Testing again 23 - Nagrajan
-=======
+
 % Line 23 please
->>>>>>> 127e3d91bb5e8ebf23023feb144cadf82de3a05a
+
 
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
 %accx = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accx.txt')
