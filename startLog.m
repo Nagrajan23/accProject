@@ -1,7 +1,7 @@
 connector on stevens123
 clear
 m = mobiledev;
-% m.SampleRate = 100;
+m.SampleRate = 'High';
 % 
 % m.AccelerationSensorEnabled = 1;
 % m.AngularVelocitySensorEnabled = 1;

@@ -33,8 +33,8 @@ figure
 % xlabel('Time (sec)')
 % ylabel('Raw Acceleration (m/sec^2)')
 
-mag = sqrt(sum(x.^2 + y.^2 + z.^2, 2));
-% mag = sum(x + y + z, 2);
+% mag = sqrt(sum(x.^2 + y.^2 + z.^2, 2));
+mag = sum(x + y + z, 2);
 % subplot(2,2,1)
 % plot(time,mag);
 % xlabel('Time (sec)')
@@ -69,8 +69,8 @@ distVariation = zeros(iterFc,1,'double');
 for i = 1:iterFc
     i
     fc = 0.01/i;
-%     [b1,a1] = butter(order,[0.01 0.09],'bandpass');
-    [b1,a1] = butter(order,0.1/36,'high');
+    [b1,a1] = butter(order,[0.2 0.3],'bandpass');
+%     [b1,a1] = butter(order,0.1/36,'high');
 %     [b1,a1] = butter(order,fc,'low');
     magNoGf=filtfilt(b1,a1,magNoG);
 %     magNoGf = filter(Hlp,magNoG);
@@ -79,18 +79,18 @@ for i = 1:iterFc
 
 %     Kalman Filter - 27 Jun
     initial_estimate = 0;
-    estErr = 0.0224;
-    mErr = 0.0224;
+    estErr = 10^-2;
+    mErr = 0.0024;
     inputVals = magNoGf;
     estPrev = initial_estimate;
     [~,len] = size(inputVals);
 
-    subplot(2,2,1)
-    if iterFc == 1
-        plot(time,magNoGf);
-        xlabel('Time (sec)')
-        ylabel('Acceleration (m/sec^2)')
-    end
+%     subplot(2,2,1)
+%     if iterFc == 1
+%         plot(time,magNoGf);
+%         xlabel('Time (sec)')
+%         ylabel('Acceleration (m/sec^2)')
+%     end
     
     for i = 1:size(inputVals)
 %         i
@@ -98,7 +98,9 @@ for i = 1:iterFc
         estCur = estPrev + kalmanGain * (inputVals(i) - estPrev);
         estErr = (1 - kalmanGain) * estErr;
         estPrev = estCur;
-        magNoGf(i) = estCur;
+%         if i > size(inputVals)/10
+%             magNoGf(i) = estCur;
+%         end
 %         estCur
 %         estErr
     end
