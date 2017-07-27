@@ -1,6 +1,6 @@
 %clc
 %clear all
-%close all
+close all
 % hello to nag
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
 %accx = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accx.txt')
@@ -33,14 +33,15 @@ figure
 % xlabel('Time (sec)')
 % ylabel('Raw Acceleration (m/sec^2)')
 
-mag = sqrt(sum(x.^2 + y.^2 + z.^2, 2));
+% mag = sqrt(sum(x.^2 + y.^2 + z.^2, 2));
+mag = sum(x + y + z, 2);
 % subplot(2,2,1)
 % plot(time,mag);
 % xlabel('Time (sec)')
 % ylabel('Combined Raw Acceleration (m/sec^2)')
 
-magNoG = mag - mean(mag);
-% magNoG = mag;
+% magNoG = mag - mean(mag(1:200));
+magNoG = mag;
 % accx_meanned = accx - mean(accx);
 % accx = magNoG;
 % accy_meanned = accy - mean(accy);
@@ -59,53 +60,58 @@ ylabel('Minus mean Acceleration (m/sec^2)')
 fs = 10; % Sampling Rate
 
 fc = 0.1/36; % Cut off Frequency
+iterFc = 1;
 
 order = 6; % 6th Order Filter
 
 %% Filter Acceleration Signals
+distVariation = zeros(iterFc,1,'double');
+for i = 1:iterFc
+    i
+    fc = 0.01/i;
+    [b1,a1] = butter(order,[0.05 0.5],'bandpass');
+    magNoGf=filtfilt(b1,a1,magNoG);
+%     magNoGf = filter(Hlp,magNoG);
+%     magNoGf = magNoG;
+    % plot(time,accxf,'r',time,accyf,'g',time,acczf,'b');
+    subplot(2,2,3)
+    if iterFc == 1
+        plot(time,magNoGf);
+        xlabel('Time (sec)')
+        ylabel('Filtered Acceleration (m/sec^2)')
+    end
 
-[b1 a1] = butter(order,fc,'low');
+    %% First Integration (Acceleration - Veloicty)
 
-magNoGf=filtfilt(b1,a1,magNoG);
-% accxf = accx;
-% accyf=filtfilt(b1,a1,accy);
-% acczf=filtfilt(b1,a1,accz);
+    velocitymagNoG=cumtrapz(time,magNoGf);
+    % velocityy=cumtrapz(time,accyf);
+    % velocityz=cumtrapz(time,acczf);
 
-% figure (2)
+    % figure (3)
 
-% plot(time,accxf,'r',time,accyf,'g',time,acczf,'b');
-subplot(2,2,3)
-plot(time,magNoGf);
-xlabel('Time (sec)')
-ylabel('Filtered Acceleration (m/sec^2)')
+    % plot(time,velocityx,'r',time,velocityy,'g',time,velocityz,'b')
+    subplot(2,2,2)
+    if iterFc == 1
+        plot(time,velocitymagNoG);
+        xlabel('Time (sec)')
+        ylabel('Velocity (m/sec)')
+    end
 
-%% First Integration (Acceleration - Veloicty)
+    %% Filter Veloicty Signals
 
-velocitymagNoG=cumtrapz(time,magNoGf);
-% velocityy=cumtrapz(time,accyf);
-% velocityz=cumtrapz(time,acczf);
+    [b2,a2] = butter(order,fc,'low');
 
-% figure (3)
+    velmagNoGf = velocitymagNoG;
+    % velxf = filtfilt(b2,a2,velocityx);
+    % velyf = filtfilt(b2,a2,velocityy);
+    % velzf = filtfilt(b2,a2,velocityz);
 
-% plot(time,velocityx,'r',time,velocityy,'g',time,velocityz,'b')
-subplot(2,2,2)
-plot(time,velocitymagNoG);
-xlabel('Time (sec)')
+    %% Second Integration (Velocity - Displacement)
 
-ylabel('Velocity (m/sec)')
-
-%% Filter Veloicty Signals
-
-[b2 a2] = butter(order,fc,'low');
-
-velmagNoGf = velocitymagNoG;
-% velxf = filtfilt(b2,a2,velocityx);
-% velyf = filtfilt(b2,a2,velocityy);
-% velzf = filtfilt(b2,a2,velocityz);
-
-%% Second Integration (Velocity - Displacement)
-
-DisplacementmagNoG=cumtrapz(time, velmagNoGf);
+    DisplacementmagNoG=cumtrapz(time, velmagNoGf);
+    [r,c] = size(DisplacementmagNoG);
+    distVariation(i) = DisplacementmagNoG(r);
+end
 % Displacementy=cumtrapz(time, velyf);
 % Displacementz=cumtrapz(time, velzf);
 subplot(2,2,4)
@@ -113,4 +119,7 @@ subplot(2,2,4)
 plot(time,DisplacementmagNoG);
 xlabel('Time (sec)')
 ylabel('Displacement (m)')
+if iterFc > 1
+    figure, plot(1:100,distVariation);
+end
 
