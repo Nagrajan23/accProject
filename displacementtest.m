@@ -79,8 +79,8 @@ for i = 1:iterFc
 
 %     Kalman Filter - 27 Jun
     initial_estimate = 0;
-    estErr = 0.000224;
-    mErr = 0.000224;
+    estErr = 0.0224;
+    mErr = 0.0224;
     inputVals = magNoGf;
     estPrev = initial_estimate;
     [~,len] = size(inputVals);
@@ -92,7 +92,7 @@ for i = 1:iterFc
         ylabel('Acceleration (m/sec^2)')
     end
     
-    for i = 1:len
+    for i = 1:size(inputVals)
 %         i
         kalmanGain = estErr / (estErr + mErr);
         estCur = estPrev + kalmanGain * (inputVals(i) - estPrev);
