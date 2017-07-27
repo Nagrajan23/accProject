@@ -69,7 +69,7 @@ distVariation = zeros(iterFc,1,'double');
 for i = 1:iterFc
     i
     fc = 0.01/i;
-    [b1,a1] = butter(order,[0.2 0.3],'bandpass');
+    [b1,a1] = butter(order,[0.016 0.05],'bandpass');
 %     [b1,a1] = butter(order,0.1/36,'high');
 %     [b1,a1] = butter(order,fc,'low');
     magNoGf=filtfilt(b1,a1,magNoG);
@@ -137,9 +137,10 @@ for i = 1:iterFc
     %% Filter Veloicty Signals
 
 %     [b2,a2] = butter(order,fc,'low');
+    [b2,a2] = butter(order,[0.016 0.022],'bandpass');
 
     velmagNoGf = velocitymagNoG;
-    % velxf = filtfilt(b2,a2,velocityx);
+%     velmagNoGf = filtfilt(b2,a2,velocitymagNoG);
     % velyf = filtfilt(b2,a2,velocityy);
     % velzf = filtfilt(b2,a2,velocityz);
 
