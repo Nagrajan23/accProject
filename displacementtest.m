@@ -112,6 +112,53 @@ for i = 1:iterFc
     [r,c] = size(DisplacementmagNoG);
     distVariation(i) = DisplacementmagNoG(r);
 end
+=======
+
+[b1 a1] = butter(order,fc,'low');
+
+% magNoGf=filtfilt(b1,a1,magNoG);
+hoursPerDay = 34060;
+coeff24hMA = ones(1, hoursPerDay)/hoursPerDay;
+magNoGf =filter(coeff24hMA,1,magNoG)
+% accxf = accx;
+% accyf=filtfilt(b1,a1,accy);
+% acczf=filtfilt(b1,a1,accz);
+
+% figure (2)
+
+% plot(time,accxf,'r',time,accyf,'g',time,acczf,'b');
+subplot(2,2,3)
+plot(time,magNoGf);
+xlabel('Time (sec)')
+ylabel('Filtered Acceleration (m/sec^2)')
+
+%% First Integration (Acceleration - Veloicty)
+
+velocitymagNoG=cumtrapz(time,magNoGf);
+% velocityy=cumtrapz(time,accyf);
+% velocityz=cumtrapz(time,acczf);
+
+% figure (3)
+
+% plot(time,velocityx,'r',time,velocityy,'g',time,velocityz,'b')
+subplot(2,2,2)
+plot(time,velocitymagNoG);
+xlabel('Time (sec)')
+
+ylabel('Velocity (m/sec)')
+
+%% Filter Veloicty Signals
+
+[b2 a2] = butter(order,fc,'low');
+
+velmagNoGf = velocitymagNoG;
+% velxf = filtfilt(b2,a2,velocityx);
+% velyf = filtfilt(b2,a2,velocityy);
+% velzf = filtfilt(b2,a2,velocityz);
+
+%% Second Integration (Velocity - Displacement)
+
+DisplacementmagNoG=cumtrapz(time, velmagNoGf);
 % Displacementy=cumtrapz(time, velyf);
 % Displacementz=cumtrapz(time, velzf);
 subplot(2,2,4)
