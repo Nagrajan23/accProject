@@ -33,8 +33,8 @@ figure
 % xlabel('Time (sec)')
 % ylabel('Raw Acceleration (m/sec^2)')
 
-% mag = sqrt(sum(x.^2 + y.^2 + z.^2, 2));
-mag = sum(x + y + z, 2);
+mag = sqrt(sum(x.^2 + y.^2 + z.^2, 2));
+% mag = sum(x + y + z, 2);
 % subplot(2,2,1)
 % plot(time,mag);
 % xlabel('Time (sec)')
@@ -69,12 +69,41 @@ distVariation = zeros(iterFc,1,'double');
 for i = 1:iterFc
     i
     fc = 0.01/i;
-    [b1,a1] = butter(order,[0.05 0.5],'bandpass');
+%     [b1,a1] = butter(order,[0.01 0.09],'bandpass');
+    [b1,a1] = butter(order,0.1/36,'high');
+%     [b1,a1] = butter(order,fc,'low');
     magNoGf=filtfilt(b1,a1,magNoG);
 %     magNoGf = filter(Hlp,magNoG);
 %     magNoGf = magNoG;
     % plot(time,accxf,'r',time,accyf,'g',time,acczf,'b');
 
+%     Kalman Filter - 27 Jun
+    initial_estimate = 0;
+    estErr = 0.000224;
+    mErr = 0.000224;
+    inputVals = magNoGf;
+    estPrev = initial_estimate;
+    [~,len] = size(inputVals);
+
+    subplot(2,2,1)
+    if iterFc == 1
+        plot(time,magNoGf);
+        xlabel('Time (sec)')
+        ylabel('Acceleration (m/sec^2)')
+    end
+    
+    for i = 1:len
+%         i
+        kalmanGain = estErr / (estErr + mErr);
+        estCur = estPrev + kalmanGain * (inputVals(i) - estPrev);
+        estErr = (1 - kalmanGain) * estErr;
+        estPrev = estCur;
+        magNoGf(i) = estCur;
+%         estCur
+%         estErr
+    end
+    
+    
 %     Touqueer Code commented - Raj 2607
 %     hoursPerDay = 34060;
 %     coeff24hMA = ones(1, hoursPerDay)/hoursPerDay;
