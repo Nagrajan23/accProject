@@ -49,6 +49,8 @@ magNoG = mag;
 % accz_meanned = accz - mean(accz);
 % accz = accz_meanned;
 
+magFFT = fft(mag);
+
 % figure,plot(time,accx,'r',time,accy,'g',time,accz,'b')
 subplot(2,2,1)
 plot(time,magNoG,'r')

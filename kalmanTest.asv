@@ -1,8 +1,0 @@
-initial_estimate = 68;
-estErr = 2;
-mErr = 4;
-estPrev = initial_estimate;
-
-kalmanGain = estErr / (estErr + mErr);
-estCur = estPrev + kalmanGain * (inputVals + estPrev);
-estErr = (1 - kalmanGain) * 
