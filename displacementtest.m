@@ -1,7 +1,7 @@
 %clc
 %clear all
 close all
-% hello to nag
+% hello to Touqeer
 %time = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\time.txt')
 %accx = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accx.txt')
 %accy = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accy.txt')
