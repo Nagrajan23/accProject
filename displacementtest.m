@@ -77,6 +77,16 @@ for i = 1:iterFc
 %     [b1,a1] = butter(order,fc,'low');
 %     magNoGf=filtfilt(b1,a1,magNoG);
     magNoGf = filter(Hbp2,magNoG);
+    [b1,a1] = butter(order,[0.016 0.05],'bandpass');
+%       [b1,a1] = butter(order,[0.01 0.05],'bandpass');
+%     [b1,a1] = butter(order,0.1/36,'high');
+%     [b1,a1] = butter(order,fc,'low');
+%     magNoGf=filtfilt(b1,a1,magNoG);
+% xdMODWT = wden(XN,'modwtsqtwolog','s','mln',4,'sym4');
+magNoGf=filtfilt(b1,a1,magNoG);
+
+magNoGf = wden(magNoGf,'modwtsqtwolog','s','mln',8,'sym4');
+%     magNoGf = filter(Hlp,magNoG);
 %     magNoGf = magNoG;
     % plot(time,accxf,'r',time,accyf,'g',time,acczf,'b');
 
