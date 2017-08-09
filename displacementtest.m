@@ -71,11 +71,12 @@ distVariation = zeros(iterFc,1,'double');
 for i = 1:iterFc
     i
     fc = 0.01/i;
-    [b1,a1] = butter(order,[0.016 0.05],'bandpass');
+%     [b1,a1] = butter(order,[0.016 0.05],'bandpass');
+      [b1,a1] = butter(order,[0.016 0.05],'bandpass');
 %     [b1,a1] = butter(order,0.1/36,'high');
 %     [b1,a1] = butter(order,fc,'low');
-    magNoGf=filtfilt(b1,a1,magNoG);
-%     magNoGf = filter(Hlp,magNoG);
+%     magNoGf=filtfilt(b1,a1,magNoG);
+    magNoGf = filter(Hbp2,magNoG);
 %     magNoGf = magNoG;
     % plot(time,accxf,'r',time,accyf,'g',time,acczf,'b');
 
