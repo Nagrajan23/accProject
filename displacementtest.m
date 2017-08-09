@@ -26,7 +26,12 @@ accz = a(:,3);
 x=accx;
 y=accy;
 z=accz;
-figure
+subplot(3,1,1)
+plot(time,x,'r');
+subplot(3,1,2)
+plot(time,y,'g');
+subplot(3,1,3)
+plot(time,z,'b');
 % plot(time,accx,'r',time,accy,'g',time,accz,'b')
 % subplot(2,2,1)
 % plot(time,accx);
@@ -41,7 +46,7 @@ mag = sum(x + y + z, 2);
 % ylabel('Combined Raw Acceleration (m/sec^2)')
 
 % magNoG = mag - mean(mag(1:200));
-magNoG = mag;
+% magNoG = mag;
 % accx_meanned = accx - mean(accx);
 % accx = magNoG;
 % accy_meanned = accy - mean(accy);
@@ -50,8 +55,25 @@ magNoG = mag;
 % accz = accz_meanned;
 
 magFFT = fft(mag);
+[b1,a1] = butter(6,0.01,'high');
+magNoG=filtfilt(b1,a1,mag);
+
+[magSize,~] = size(magNoG);
+for i = 1:floor(magSize/10)
+    startMag = ((i-1)*10) + 1;
+    endMag = i*10;
+    if(max(abs(magNoG(startMag:endMag))) < 0.1)
+        magNoG(startMag:endMag) = 0;
+    end
+end
+startMag = (i*10) + 1;
+endMag = magSize;
+if(max(abs(magNoG(startMag:endMag))) < 0.1)
+    magNoG(startMag:endMag) = 0;
+end
 
 % figure,plot(time,accx,'r',time,accy,'g',time,accz,'b')
+figure;
 subplot(2,2,1)
 plot(time,magNoG,'r')
 xlabel('Time (sec)')
@@ -82,12 +104,12 @@ for i = 1:iterFc
 %     [b1,a1] = butter(order,fc,'low');
 %     magNoGf=filtfilt(b1,a1,magNoG);
 % xdMODWT = wden(XN,'modwtsqtwolog','s','mln',4,'sym4');
-magNoGf=filtfilt(b1,a1,magNoG);
+% magNoGf=filtfilt(b1,a1,magNoG);
 
 % Wavelet filtering
 % magNoGf = wden(magNoGf,'modwtsqtwolog','s','mln',8,'sym4');
 %     magNoGf = filter(Hlp,magNoG);
-%     magNoGf = magNoG;
+    magNoGf = magNoG;
     % plot(time,accxf,'r',time,accyf,'g',time,acczf,'b');
 
 %     Kalman Filter - 27 Jun
@@ -140,12 +162,6 @@ magNoGf=filtfilt(b1,a1,magNoG);
     % figure (3)
 
     % plot(time,velocityx,'r',time,velocityy,'g',time,velocityz,'b')
-    subplot(2,2,2)
-    if iterFc == 1
-        plot(time,velocitymagNoG);
-        xlabel('Time (sec)')
-        ylabel('Velocity (m/sec)')
-    end
 
     %% Filter Veloicty Signals
 
@@ -153,6 +169,26 @@ magNoGf=filtfilt(b1,a1,magNoG);
     [b2,a2] = butter(order,[0.016 0.022],'bandpass');
 
     velmagNoGf = velocitymagNoG;
+    [velSize,~] = size(velocitymagNoG);
+    for i = 1:floor(velSize/10)
+        startVel = ((i-1)*10) + 1;
+        endVel = i*10;
+        if(max(abs(velmagNoGf(startVel:endVel))) < 0.1)
+            velmagNoGf(startVel:endVel) = 0;
+        end
+    end
+    startVel = (i*10) + 1;
+    endVel = velSize;
+    if(max(abs(velmagNoGf(startVel:endVel))) < 0.1)
+        velmagNoGf(startVel:endVel) = 0;
+    end
+    
+    subplot(2,2,2)
+    if iterFc == 1
+        plot(time,velmagNoGf);
+        xlabel('Time (sec)')
+        ylabel('Velocity (m/sec)')
+    end
 %     velmagNoGf = filtfilt(b2,a2,velocitymagNoG);
     % velyf = filtfilt(b2,a2,velocityy);
     % velzf = filtfilt(b2,a2,velocityz);
