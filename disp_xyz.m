@@ -52,13 +52,13 @@ for i = 1:3
         startVel = ((i-1)*10) + 1;
         endVel = i*10;
         if(max(abs(velmagNoGf(startVel:endVel))) < 0.1)
-            velmagNoGf(startVel:endVel) = 0;
+%             velmagNoGf(startVel:endVel) = 0;
         end
     end
     startVel = (i*10) + 1;
     endVel = velSize;
     if(max(abs(velmagNoGf(startVel:endVel))) < 0.1)
-        velmagNoGf(startVel:endVel) = 0;
+%         velmagNoGf(startVel:endVel) = 0;
     end
     
     subplot(2,2,2)
