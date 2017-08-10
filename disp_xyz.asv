@@ -4,10 +4,10 @@ close all
 [dataSize,~] = size(a);
 aFilt = a;
 for i = 1:3
-%     subplot(2,3,i)
-%     plot(t,a(:,i),'r');
-%     xlabel('Time (sec)')
-%     ylabel('Raw Acceleration (m/sec^2)')
+    subplot(2,3,i)
+    plot(t,a(:,i),'r');
+    xlabel('Time (sec)')
+    ylabel('Raw Acceleration (m/sec^2)')
 %     aFilt(:,i)=filtfilt(b1,a1,a(:,i));
     aFilt(:,i) = wden(a(:,i),'modwtsqtwolog','s','mln',8,'sym4');
     
@@ -27,10 +27,10 @@ for i = 1:3
     if(max(abs(aFilt(startAcc:endAcc,i))) < thresh)
         aFilt(startAcc:endAcc,i) = 0;
     end
-%     subplot(2,3,i+3)
-%     plot(t,aFilt(:,i),'r');
-%     xlabel('Time (sec)')
-%     ylabel('Filtered Acceleration (m/sec^2)')
+    subplot(2,3,i+3)
+    plot(t,aFilt(:,i),'r');
+    xlabel('Time (sec)')
+    ylabel('Filtered Acceleration (m/sec^2)')
     
     magNoG = aFilt(:,i);
     magNoGf = magNoG;
@@ -62,9 +62,11 @@ for i = 1:3
     end
     
     subplot(2,2,2)
-    plot(time,velmagNoGf);
-    xlabel('Time (sec)')
-    ylabel('Velocity (m/sec)')
+    if iterFc == 1
+        plot(time,velmagNoGf);
+        xlabel('Time (sec)')
+        ylabel('Velocity (m/sec)')
+    end
     
     %% Second Integration (Velocity - Displacement)
     DisplacementmagNoG=cumtrapz(time, velmagNoGf);
