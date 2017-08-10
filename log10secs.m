@@ -18,19 +18,20 @@ if(m.AccelerationSensorEnabled)
 end
 if(m.AngularVelocitySensorEnabled)
     m.AngularVelocitySensorEnabled = 0;
-    [ang,tang] = angvellog(m);
+    [av, tav] = angvellog(m);
 end
+
 if(m.MagneticSensorEnabled)
     m.MagneticSensorEnabled = 0;
     [mag,tmag] = magfieldlog(m);
 end
 if(m.OrientationSensorEnabled)
     m.OrientationSensorEnabled = 0;
-    [ori,tori] = orientlog(m);
+    [o, to] = orientlog(m);
 end
 if(m.PositionSensorEnabled)
     m.PositionSensorEnabled = 0;
-    [pos,tpos] = poslog(m);
+    [lat, lon, tpos, spd] = poslog(m);
 end
 
 % clear m;
