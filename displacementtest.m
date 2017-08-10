@@ -7,6 +7,25 @@ close all
 %accy = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accy.txt')
 %accz = load('C:\Users\touqe\OneDrive\Documents\MATLAB\projecttest\accz.txt')
 
+[b1,a1] = butter(6,0.01,'high');
+[dataSize,~] = size(a);
+for i = 1:3
+    a(:,i)=filtfilt(b1,a1,a(:,i));
+    thresh = max(abs(a(1:300,i)))
+    for j = 1:floor(dataSize/10)
+        startAcc = ((j-1)*10) + 1;
+        endAcc = j*10;
+        if(max(abs(a(startAcc:endAcc,i))) < thresh)
+            a(startAcc:endAcc,i) = 0;
+        end
+    end
+    startAcc = (j*10) + 1;
+    endAcc = dataSize;
+    if(max(abs(a(startAcc:endAcc,i))) < thresh)
+        a(startAcc:endAcc,i) = 0;
+    end
+end
+
 % time = t(7563:10332);
 time = t;
 accx = a(:,1);
@@ -58,8 +77,7 @@ magFFT = fft(mag);
 [b1,a1] = butter(6,0.01,'high');
 magNoG=filtfilt(b1,a1,mag);
 
-[magSize,~] = size(magNoG);
-for i = 1:floor(magSize/10)
+for i = 1:floor(dataSize/10)
     startMag = ((i-1)*10) + 1;
     endMag = i*10;
     if(max(abs(magNoG(startMag:endMag))) < 0.1)
@@ -67,7 +85,7 @@ for i = 1:floor(magSize/10)
     end
 end
 startMag = (i*10) + 1;
-endMag = magSize;
+endMag = dataSize;
 if(max(abs(magNoG(startMag:endMag))) < 0.1)
     magNoG(startMag:endMag) = 0;
 end
