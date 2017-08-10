@@ -1,0 +1,30 @@
+x = a(:,1);
+y = a(:,2);
+z = a(:,3);
+dist = a(:,3);
+radians = a(:,3);
+
+dist_x = sqrt((y.*y)+(z.*z));
+radians_x = atan(x ./ dist_x);
+degree_x = mod(radtodeg(radians_x), 360);
+
+dist_y = sqrt((x.*x)+(z.*z));
+radians_y = atan(y ./ dist_y);
+degree_y = mod(radtodeg(radians_y), 360);
+
+subplot(2,3,1)
+plot(t,x);
+xlabel('Time (sec)')
+ylabel('X (m/sec)')
+subplot(2,3,2)
+plot(t,y);
+xlabel('Time (sec)')
+ylabel('Y (m/sec)')
+subplot(2,3,3)
+plot(t,z);
+xlabel('Time (sec)')
+ylabel('Z (m/sec)')
+subplot(2,3,4)
+plot(t,z);
+xlabel('Time (sec)')
+ylabel('Z (m/sec)')
