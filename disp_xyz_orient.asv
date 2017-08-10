@@ -1,0 +1,10 @@
+x = a(:,1);
+y = a(:,2);
+z = a(:,3);
+dist = a(:,3);
+radians = a(:,3);
+
+dist = sqrt((y(i)*y(i))+(z(i)*z(i)));
+radians(i) = atan(x(i) / dist(i));
+
+
