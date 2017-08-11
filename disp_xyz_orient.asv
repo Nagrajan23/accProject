@@ -24,12 +24,12 @@ time_diff = 0.01;
 x = a(:,1);
 y = a(:,2);
 z = a(:,3);
-radians_x = atan2(-y(1),sqrt((x(1)*x(1))+(z(1)*z(1))));
+radians_x = atan2(y(1),sqrt((x(1)*x(1))+(z(1)*z(1))));
 degree_x = mod(radtodeg(radians_x), 360);
-radians_y = atan2(-x(1),sqrt((y(1)*y(1))+(z(1)*z(1))));
+radians_y = atan2(x(1),sqrt((y(1)*y(1))+(z(1)*z(1))));
 degree_y = mod(radtodeg(radians_y), 360);
-% radians_z = atan2(z,sqrt(x.^2+y.^2));
-% degree_z = mod(radtodeg(radians_z), 360);
+radians_z = atan2(z,sqrt(x.^2+y.^2));
+degree_z = mod(radtodeg(radians_z), 360);
 
 [len,~] = size(av);
 [len2,~] = size(a);
@@ -58,9 +58,9 @@ for i = 2:len
     gyro_total_x = gyro_total_x + gyro_x_delta;
     gyro_total_y = gyro_total_y + gyro_y_delta;
 
-    radians_x = atan2(-y(i),sqrt((x(i)*x(i))+(z(i)*z(i))));
+    radians_x = atan2(y(i),sqrt((x(i)*x(i))+(z(i)*z(i))));
     rotation_x = mod(radtodeg(radians_x), 360);
-    radians_y = atan2(-x(i),sqrt((y(i)*y(i))+(z(i)*z(i))));
+    radians_y = atan2(x(i),sqrt((y(i)*y(i))+(z(i)*z(i))));
     rotation_y = mod(radtodeg(radians_y), 360);
 
     last_x(i) = k * (last_x(i) + gyro_x_delta) + (k1 * rotation_x);
