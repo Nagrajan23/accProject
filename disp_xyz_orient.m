@@ -1,12 +1,16 @@
 close all;
-aFilt = a;
+% aFilt = a;
+aFilt = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
+av = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
+t = Untitled.Time;
+a = aFilt;
 for i = 1:3
     subplot(2,3,i)
     plot(t,a(:,i),'r');
     xlabel('Time (sec)')
     ylabel('Raw Acceleration (m/sec^2)')
 
-    aFilt(:,i) = wden(a(:,i),'modwtsqtwolog','s','mln',8,'sym4');
+%     aFilt(:,i) = wden(a(:,i),'modwtsqtwolog','s','mln',8,'sym4');
     subplot(2,3,i+3)
     plot(t,aFilt(:,i),'r');
     xlabel('Time (sec)')
@@ -24,10 +28,10 @@ time_diff = 0.01;
 x = a(:,1);
 y = a(:,2);
 z = a(:,3);
-radians_x = atan2(-y(1),sqrt((x(1)*x(1))+(z(1)*z(1))));
+radians_x = atan2(y(1),sqrt((x(1)*x(1))+(z(1)*z(1))));
 degree_x = mod(radtodeg(radians_x), 360);
-radians_y = atan2(-x(1),sqrt((y(1)*y(1))+(z(1)*z(1))));
-degree_y = mod(radtodeg(radians_y), 360);
+radians_y = atan2(x(1),sqrt((y(1)*y(1))+(z(1)*z(1))));
+degree_y = -mod(radtodeg(radians_y), 360);
 % radians_z = atan2(z,sqrt(x.^2+y.^2));
 % degree_z = mod(radtodeg(radians_z), 360);
 
@@ -38,6 +42,8 @@ last_x = zeros(len,1,'double');
 last_y = zeros(len,1,'double');
 gyro_scaled_x = zeros(len,1,'double');
 gyro_scaled_y = zeros(len,1,'double');
+rotation_x = zeros(len,1,'double');
+rotation_y = zeros(len,1,'double');
 last_x(1) = degree_x
 last_y(1) = degree_y
 gyro_offset_x = av(1,1);
@@ -58,18 +64,20 @@ for i = 2:len
     gyro_total_x = gyro_total_x + gyro_x_delta;
     gyro_total_y = gyro_total_y + gyro_y_delta;
 
-    radians_x = atan2(-y(i),sqrt((x(i)*x(i))+(z(i)*z(i))));
-    rotation_x = mod(radtodeg(radians_x), 360);
-    radians_y = atan2(-x(i),sqrt((y(i)*y(i))+(z(i)*z(i))));
-    rotation_y = mod(radtodeg(radians_y), 360);
+    radians_x = atan2(y(i),sqrt((x(i)*x(i))+(z(i)*z(i))));
+%     rotation_x(i) = mod(radtodeg(radians_x), 360);
+    rotation_x(i) = radtodeg(radians_x);
+    radians_y = atan2(x(i),sqrt((y(i)*y(i))+(z(i)*z(i))));
+%     rotation_y(i) = -mod(radtodeg(radians_y), 360);
+    rotation_y(i) = radtodeg(radians_y);
 
-    last_x(i) = k * (last_x(i) + gyro_x_delta) + (k1 * rotation_x);
-    last_y(i) = k * (last_y(i) + gyro_y_delta) + (k1 * rotation_y);
+    last_x(i) = k * (last_x(i) + gyro_x_delta) + (k1 * rotation_x(i));
+    last_y(i) = k * (last_y(i) + gyro_y_delta) + (k1 * rotation_y(i));
 end
 
 figure;
-plot(t(1:len),x(1:len),'r',t(1:len),gyro_scaled_x(1:len),'g',t(1:len),last_x(1:len),'b');
-figure,plot(t(1:len),y(1:len),'r',t(1:len),gyro_scaled_y(1:len),'g',t(1:len),last_y(1:len),'b');
+plot(t(1:len),x(1:len),'r',t(1:len),last_x(1:len),'g',t(1:len),rotation_x(1:len),'b');
+figure,plot(t(1:len),y(1:len),'r',t(1:len),last_y(1:len),'g',t(1:len),rotation_y(1:len),'b');
 % dist_z = sqrt((x.*x)+(y.*y));
 % radians_z = atan(z ./ dist_z);
 % degree_z = mod(radtodeg(radians_z), 360);
