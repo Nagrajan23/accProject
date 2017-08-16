@@ -1,11 +1,11 @@
 close all;
 
-weightGyro = 0.02;
+weightGyro = 5;
 aRaw = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
 avRaw = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
 
-[lenA,~] = size(av);
-[lenAv,~] = size(a);
+[lenA,~] = size(avRaw);
+[lenAv,~] = size(aRaw);
 len = min(lenA,lenAv);
 
 t = Untitled.Time(1:len);
@@ -32,7 +32,7 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst, avPreviousEst,
     angleYZcurr = anglesPrev(2) + avYZAvg * timePeriod;
     angles = [angleXZcurr,angleYZcurr];
     
-    aEst(1) =  1  / sqrt(1  +   cot(angleXZcurr)^2 * sec(angleYZcurr)^2 );
-    aEst(2) =  1  / sqrt(1  +   cot(angleYZcurr)^2 * sec(angleXZcurr)^2 );
+    aEst(1) =  1  / sqrt(1  +   cotd(angleXZcurr)^2 * secd(angleYZcurr)^2 );
+    aEst(2) =  1  / sqrt(1  +   cotd(angleYZcurr)^2 * secd(angleXZcurr)^2 );
     aEst(3) =  sign(aPreviousEst(3)) * sqrt(1 - aEst(2)^2 - aEst(3)^2);
 end
