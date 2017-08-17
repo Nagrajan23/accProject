@@ -1,6 +1,6 @@
 %% Get file from Raspberry Pi
-fileReadName = '20170817-1402.txt';
-% fileReadName = [char(datetime('now','Format','yyyyMMdd-HHmm')-minutes(0)), '.txt'];
+% fileReadName = '20170817-1710.txt';
+fileReadName = [char(datetime('now','Format','yyyyMMdd-HHmm')-minutes(0)), '.txt'];
 
 if(~exist(fileReadName,'file'))
     if(~exist('mypi','var'))
@@ -9,12 +9,17 @@ if(~exist(fileReadName,'file'))
     raspLocation = '/home/pi/mpuu9255/MPU9255/';
     for i = 0:10
         fileReadName = [char(datetime('now','Format','yyyyMMdd-HHmm')-minutes(i)), '.txt'];
+        srcFile = [raspLocation,fileReadName];
         try
-            srcFile = [raspLocation,fileReadName];
+            getFile(mypi,srcFile);
+            if(exist(fileReadName,'file'))
+                break;
+            end
         catch
+            disp('Caught=');
+            disp(fileReadName);
         end
     end
-    getFile(mypi,srcFile);
 
     if(exist('mypi','var'))
         clear mypi;

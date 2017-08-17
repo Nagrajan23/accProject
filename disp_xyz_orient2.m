@@ -25,14 +25,41 @@ for i = 2:len
 end
 aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
 plot(t,aAdjusted);
+title('Acc Gyro Weight Adjusted');
 figure,plot(t,aEst);
+title('Gyro Estimated DCs');
 figure,plot(t,aRaw);
+title('Acc Raw');
 figure,plot(t,avRaw);
+title('Angular Velocity Raw');
 
-anglesSph = zeros(len,3,'double');
-[anglesSph(:,1),anglesSph(:,2),anglesSph(:,3)] = cart2sph(aEst(:,1),aEst(:,2),aEst(:,3));
-anglesSph(:,1:2) = rad2deg(anglesSph(:,1:2));
-figure,plot(t,anglesSph(:,1:2));
+gSph = zeros(len,3,'double');
+gSphDegree = zeros(len,3,'double');
+[gSph(:,1),gSph(:,2),gSph(:,3)] = cart2sph(aEst(:,1),aEst(:,2),aEst(:,3));
+gSphDegree(:,1:2) = rad2deg(gSph(:,1:2));
+figure,plot(t,gSphDegree(:,1:2));
+title('Theta Phi of DCs');
+
+gSum = zeros(1,'double');
+gVector = zeros(len,3,'double');
+for i = 1:300
+    gSum = gSum + norm(aRaw(i,:));
+end
+gMean = gSum / 300;
+gSph(:,3) = gMean;
+[gVector(:,1),gVector(:,2),gVector(:,3)] = sph2cart(gSph(:,1),gSph(:,2),gSph(:,3));
+figure,plot(t,gVector);
+title('Gravity Vector Cartesian');
+aMotion = aRaw - gVector;
+figure,plot(t,aMotion);
+title('Acc Motion Vector Cartesian');
+
+% anglesDC = zeros(len,3,'double');
+% aEstR = sqrt(aEst(:,1).^2 + aEst(:,2).^2 + aEst(:,3).^2);
+anglesDC = rad2deg(abs(acos(aEst)));
+figure,plot(t,anglesDC);
+title('Angles of DCs with each axis');
+legend('x','y','z');
 
 % weightGyro = 1;
 % aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
