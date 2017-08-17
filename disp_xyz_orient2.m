@@ -2,7 +2,13 @@ close all;
 
 weightGyro = 5;
 aRaw = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
-avRaw = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
+avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
+
+avRaw = avRaw0;
+for i = 1:3
+    avRaw(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
+    avRaw(:,i) = avRaw(:,i) - mean(avRaw(1:300,i));
+end
 
 [lenA,~] = size(avRaw);
 [lenAv,~] = size(aRaw);
@@ -22,6 +28,21 @@ plot(t,aAdjusted);
 figure,plot(t,aEst);
 figure,plot(t,aRaw);
 figure,plot(t,avRaw);
+
+anglesSph = zeros(len,3,'double');
+[anglesSph(:,1),anglesSph(:,2),anglesSph(:,3)] = cart2sph(aEst(:,1),aEst(:,2),aEst(:,3));
+anglesSph(:,1:2) = rad2deg(anglesSph(:,1:2));
+figure,plot(t,anglesSph(:,1:2));
+
+% weightGyro = 1;
+% aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
+% figure,plot(t,aAdjusted);
+% weightGyro = 10;
+% aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
+% figure,plot(t,aAdjusted);
+% weightGyro = 20;
+% aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
+% figure,plot(t,aAdjusted);
 
 function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst, avPreviousEst, anglesPrev)
     timePeriod = 0.01;
