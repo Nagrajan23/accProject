@@ -1,6 +1,6 @@
 close all;
 
-weightGyro = 5;
+weightGyro = .5;
 aRaw = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
 avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
 
@@ -35,7 +35,7 @@ title('Angular Velocity Raw');
 
 gSph = zeros(len,3,'double');
 gSphDegree = zeros(len,3,'double');
-[gSph(:,1),gSph(:,2),gSph(:,3)] = cart2sph(aEst(:,1),aEst(:,2),aEst(:,3));
+[gSph(:,1),gSph(:,2),gSph(:,3)] = cart2sph(aAdjusted(:,1),aAdjusted(:,2),aAdjusted(:,3));
 gSphDegree(:,1:2) = rad2deg(gSph(:,1:2));
 figure,plot(t,gSphDegree(:,1:2));
 title('Theta Phi of DCs');
@@ -45,7 +45,7 @@ gVector = zeros(len,3,'double');
 for i = 1:300
     gSum = gSum + norm(aRaw(i,:));
 end
-gMean = gSum / 300;
+gMean = gSum / 300
 gSph(:,3) = gMean;
 [gVector(:,1),gVector(:,2),gVector(:,3)] = sph2cart(gSph(:,1),gSph(:,2),gSph(:,3));
 figure,plot(t,gVector);
