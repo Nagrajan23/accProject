@@ -2,7 +2,8 @@ close all;
 % Dynamic Motion extraction from Acclerometer using data from both
 % Acclerometer and Gyroscope
 
-% Need to run import raspi function file to get 
+% Need to run import raspi function file to get data from raspberry pi
+% Don't forget to put current ip of raspberry pi.
 Import_rasp;
 
 aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
@@ -11,6 +12,7 @@ avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
 weightGyro = .1;
 avRaw = avRaw0;
 aRaw = aRaw0;
+
 for i = 1:3
     avRaw(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
     aRaw(:,i) = wden(aRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
