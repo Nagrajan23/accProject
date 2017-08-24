@@ -1,6 +1,7 @@
 close all;
 
-weightGyro = .1;
+% importRaspPi;
+weightGyro = 5;
 aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
 avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
 
@@ -9,7 +10,8 @@ aRaw = aRaw0;
 for i = 1:3
     avRaw(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
     aRaw(:,i) = wden(aRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
-    aRaw(:,i) = medfilt1(aRaw(:,i),100);
+    aRaw(:,i) = medfilt1(aRaw(:,i),10);
+    aRaw(1,i) = aRaw0(1,i);
     avRaw(:,i) = avRaw(:,i) - mean(avRaw(1:300,i));
     avRaw(:,i) = medfilt1(avRaw(:,i),100);
 end
@@ -17,6 +19,12 @@ end
 [lenA,~] = size(avRaw);
 [lenAv,~] = size(aRaw);
 len = min(lenA,lenAv);
+
+gSum = zeros(1,'double');
+for i = 1:300
+    gSum = gSum + norm(aRaw0(i,:));
+end
+gMean = gSum / 300
 
 t = Untitled.Time(1:len);
 aEst = zeros(len,3,'double');
@@ -30,19 +38,36 @@ for i = 2:len
     else
         avPreviousRaw = mean(avRaw(i-20:i-1,:));
     end
-    [aEst(i,:),anglesPrev] = findEstimate(avRaw(i,:), aEst(i-1,:), avPreviousRaw, anglesPrev);
+    timePeriod = seconds(t(i) - t(i-1));
+    [aEst(i,:),anglesPrev] = findEstimate(avRaw(i,:), aEst(i-1,:),...
+        avPreviousRaw, anglesPrev, gMean, timePeriod);
 end
-aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
+
+aAdjusted = zeros(len,3,'double');
+weightGyro2 = zeros(len,1,'double');
+for i = 1:len
+    if(sum(avRaw(i,:)) < 0.2)
+        weightGyro2(i) = 0;
+    else
+        weightGyro2(i) = weightGyro;
+    end
+    aAdjusted(i,:) = (aRaw(i,:) + aEst(i,:) * weightGyro2(i)) / (1 + weightGyro2(i));
+end
+% aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
+subplot(2,2,1);
 plot(t,aAdjusted);
 title('Acc Gyro Weight Adjusted');
 legend('x','y','z');
-figure,plot(t,aEst);
+subplot(2,2,2);
+plot(t,aEst);
 title('Gyro Estimated DCs');
 legend('x','y','z');
-figure,plot(t,aRaw);
+subplot(2,2,3);
+plot(t,aRaw);
 title('Acc Raw');
 legend('x','y','z');
-figure,plot(t,avRaw);
+subplot(2,2,4);
+plot(t,avRaw);
 title('Angular Velocity Raw');
 legend('x','y','z');
 
@@ -50,45 +75,43 @@ gSph = zeros(len,3,'double');
 gSphDegree = zeros(len,3,'double');
 [gSph(:,1),gSph(:,2),gSph(:,3)] = cart2sph(aAdjusted(:,1),aAdjusted(:,2),aAdjusted(:,3));
 gSphDegree(:,1:2) = rad2deg(gSph(:,1:2));
-figure,plot(t,gSphDegree(:,1:2));
+figure;
+subplot(2,2,1);
+plot(t,gSphDegree(:,1:2));
 title('Theta Phi of DCs');
 legend('Theta','Phi');
 
-gSum = zeros(1,'double');
 gVector = zeros(len,3,'double');
-for i = 1:300
-    gSum = gSum + norm(aRaw(i,:));
-end
-gMean = gSum / 300
 gSph(:,3) = gMean;
 [gVector(:,1),gVector(:,2),gVector(:,3)] = sph2cart(gSph(:,1),gSph(:,2),gSph(:,3));
-figure,plot(t,gVector);
+subplot(2,2,2);
+plot(t,gVector);
 title('Gravity Vector Cartesian');
 legend('x','y','z');
 aMotion = aRaw - gVector;
-figure,plot(t,aMotion);
-title('Acc Motion Vector Cartesian');
+subplot(2,2,3);
+plot(t,aRaw0);
+title(' Purely Raw Acceleration (m/sec^2)')
 legend('x','y','z');
 
 % anglesDC = zeros(len,3,'double');
 % aEstR = sqrt(aEst(:,1).^2 + aEst(:,2).^2 + aEst(:,3).^2);
 anglesDC = rad2deg(abs(acos(aEst)));
-figure,plot(t,anglesDC);
+subplot(2,2,4);
+plot(t,anglesDC);
 title('Angles of DCs with each axis');
 legend('x','y','z');
 
-% weightGyro = 1;
-% aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
-% figure,plot(t,aAdjusted);
-% weightGyro = 10;
-% aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
-% figure,plot(t,aAdjusted);
-% weightGyro = 20;
-% aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
-% figure,plot(t,aAdjusted);
+timeInS = zeros(len,1,'double');
+for i = 2:len
+    timeInS(i) = timeInS(i-1) + seconds(t(i) - t(i-1));
+end
 
-function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst, avPreviousRaw, anglesPrev)
-    timePeriod = 0.0022;
+findDisplacement(aMotion, aRaw, timeInS);
+
+function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
+        avPreviousRaw, anglesPrev, gMean, timePeriod)
+%     timePeriod = 0.0022;
     aEst = zeros(1,3,'double');    
     avXZAvg = mean([avCurrentRaw(2),avPreviousRaw(2)]);
     angleXZcurr = anglesPrev(1) + avXZAvg * timePeriod;
@@ -99,4 +122,61 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst, avPreviousRaw,
     aEst(1) =  1  / sqrt(1  +   cotd(angleXZcurr)^2 * secd(angleYZcurr)^2 );
     aEst(2) =  1  / sqrt(1  +   cotd(angleYZcurr)^2 * secd(angleXZcurr)^2 );
     aEst(3) =  sign(aPreviousEst(3)) * sqrt(1 - aEst(2)^2 - aEst(3)^2);
+end
+
+function findDisplacement(aMotion, aRaw, t)
+    magNoG = aMotion;
+    time = t;
+    figure;
+    [dataSize,~] = size(aMotion);
+    for i = 1:3
+        magNoG(:,i) = wden(aMotion(:,i),'modwtsqtwolog','s','mln',8,'sym4');
+        magNoG(:,i) = magNoG(:,i) - mean(magNoG(1:500,i));
+        
+        thresh = max(abs(magNoG(1:500,i)));
+        for j = 1:floor(dataSize/10)
+            startAcc = ((j-1)*10) + 1;
+            endAcc = j*10;
+            if(max(abs(magNoG(startAcc:endAcc,i))) < thresh)
+                magNoG(startAcc:endAcc,i) = 0;
+            end
+        end
+        startAcc = (j*10) + 1;
+        endAcc = dataSize;
+        if(max(abs(magNoG(startAcc:endAcc,i))) < thresh)
+            magNoG(startAcc:endAcc,i) = 0;
+        end
+    end
+    
+    subplot(2,2,3)
+    plot(time,magNoG)
+    xlabel('Time (sec)')
+    ylabel('Minus G Acceleration (m/sec^2)')
+    legend('x','y','z');
+    
+    subplot(2,2,1)
+    plot(time,aMotion)
+    xlabel('Time (sec)')
+    ylabel('Acc Motion Vector Cartesian');
+    legend('x','y','z');
+    
+    % First Integration (Acceleration - Veloicty)
+    velmagNoG = cumtrapz(time,magNoG);
+    subplot(2,2,2)
+    plot(time,velmagNoG);
+    xlabel('Time (sec)')
+    ylabel('Velocity (m/sec)')
+    legend('x','y','z');
+    
+    % Second Integration (Velocity - Displacement)
+    DisplacementmagNoG=cumtrapz(time, velmagNoG);
+    subplot(2,2,4)
+    plot(time,DisplacementmagNoG);
+    xlabel('Time (sec)')
+    ylabel('Displacement (m)')
+    legend('x','y','z');
+    
+    TotalDisplacement = norm(DisplacementmagNoG(dataSize,:));
+    disp('Total Displcement = ');
+    disp(TotalDisplacement * 9.8);
 end
