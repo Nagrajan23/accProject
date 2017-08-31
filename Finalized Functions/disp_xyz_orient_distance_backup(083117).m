@@ -15,71 +15,29 @@ avRaw = avRaw0;
 aRaw1 = aRaw0;
 aRaw = aRaw0;
 
-figure (1);
-subplot(3,2,1);
+subplot(4,1,1);
 plot(t,aRaw0);
-title('Raw Acceleration');
-legend('x','y','z');
-ylim([-2 2]);
-
-figure (1);
-subplot(3,2,2);
-plot(t,avRaw0);
-title('Raw Angular Velocity');
-legend('x','y','z');
-ylim([-200 200]);
-
-% Loop for filtering all axis of raw data
 for i = 1:3
-    % De-noise noisy signal using minimax threshold with 
-    % a multiple level estimation of noise standard deviation.
     avRaw(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
 %     aRaw1(:,i) = wden(aRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
-    figure (1);
-    subplot(3,2,4);
-    plot(t,avRaw);
-    title('De-noised Angular Velocity');
-    legend('x','y','z');
-    ylim([-200 200]);
-%     subplot(4,1,2);
-%     plot(t,aRaw1);
     
-%     title('De-noised Acceleration');
-%     legend('x','y','z');
-    
-    
+    subplot(4,1,2);
+    plot(t,aRaw1);
     order = 6; % 6th Order Filter
     [b1,a1] = butter(order, 0.01, 'low');
     aRaw(:,i) = filtfilt(b1 ,a1 , aRaw1(:,i));
-    
-    figure (1);
-    subplot(3,2,3);
+    subplot(4,1,3);
     plot(t,aRaw);
-    title('Low Pass Butterworth Filter (Acceleration)');
-    legend('x','y','z');
-    ylim([-2 2]);
     
     aRaw1(:,i) = medfilt1(aRaw1(:,i),100);
     aRaw1(1,i) = aRaw0(1,i);
-    
-    figure (1);
-    subplot(3,2,5);
+    subplot(4,1,4);
     plot(t,aRaw1);
-    title('Median Filter (Acceleration)');
-    legend('x','y','z');
-    ylim([-2 2]);
     
     avRaw(:,i) = avRaw(:,i) - mean(avRaw(1:300,i));
     avRaw(:,i) = medfilt1(avRaw(:,i),100);
-    
-    figure (1);
-    subplot(3,2,6);
-    plot(t,avRaw);
-    title('Median Filter (Angular Velocity)');
-    legend('x','y','z');
-    ylim([-200 200]);
-    
 end
+figure;
 
 gSum = zeros(1,'double');
 for i = 1:300
@@ -115,33 +73,29 @@ for i = 1:len
     aAdjusted(i,:) = (aRaw(i,:) + aEst(i,:) * weightGyro2(i)) / (1 + weightGyro2(i));
 end
 % aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
-
-figure (2);
-subplot(3,2,1);
+subplot(2,2,1);
 plot(t,aAdjusted);
 title('Acc Gyro Weight Adjusted');
 legend('x','y','z');
-figure (2);
-subplot(3,2,2);
+subplot(2,2,2);
 plot(t,aEst);
 title('Gyro Estimated DCs');
 legend('x','y','z');
-% figure (2);
-% subplot(2,2,3);
-% plot(t,aRaw);
-% title('Acc Raw');
-% legend('x','y','z');
-% subplot(2,2,4);
-% plot(t,avRaw);
-% title('Angular Velocity Raw');
-% legend('x','y','z');
+subplot(2,2,3);
+plot(t,aRaw);
+title('Acc Raw');
+legend('x','y','z');
+subplot(2,2,4);
+plot(t,avRaw);
+title('Angular Velocity Raw');
+legend('x','y','z');
 
 gSph = zeros(len,3,'double');
 gSphDegree = zeros(len,3,'double');
 [gSph(:,1),gSph(:,2),gSph(:,3)] = cart2sph(aAdjusted(:,1),aAdjusted(:,2),aAdjusted(:,3));
 gSphDegree(:,1:2) = rad2deg(gSph(:,1:2));
-figure (2);
-subplot(3,2,3);
+figure;
+subplot(2,2,1);
 plot(t,gSphDegree(:,1:2));
 title('Theta Phi of DCs');
 legend('Theta','Phi');
@@ -149,29 +103,21 @@ legend('Theta','Phi');
 gVector = zeros(len,3,'double');
 gSph(:,3) = gMean;
 [gVector(:,1),gVector(:,2),gVector(:,3)] = sph2cart(gSph(:,1),gSph(:,2),gSph(:,3));
-figure (2);
-subplot(3,2,4);
+subplot(2,2,2);
 plot(t,gVector);
 title('Gravity Vector Cartesian');
 legend('x','y','z');
 aMotion = aRaw - gVector;
-% subplot(2,2,3);
-% plot(t,aRaw0);
-% title(' Purely Raw Acceleration (m/sec^2)')
-% legend('x','y','z');
+subplot(2,2,3);
+plot(t,aRaw0);
+title(' Purely Raw Acceleration (m/sec^2)')
+legend('x','y','z');
 
 % anglesDC = zeros(len,3,'double');
 % aEstR = sqrt(aEst(:,1).^2 + aEst(:,2).^2 + aEst(:,3).^2);
 anglesDC = rad2deg(abs(acos(aEst)));
-figure (2);
-subplot(3,2,5);
+subplot(2,2,4);
 plot(t,anglesDC);
-title('Angles of DCs with each axis');
-legend('x','y','z');
-
-figure (2);
-subplot(3,2,6);
-plot(t,aMotion);
 title('Angles of DCs with each axis');
 legend('x','y','z');
 
@@ -202,6 +148,7 @@ end
 function findDisplacement(aMotion, weightGyro2, t)
     magNoG = aMotion;
     time = t;
+    figure;
     [dataSize,~] = size(aMotion);
     for i = 1:3
         magNoG(:,i) = wden(aMotion(:,i),'modwtsqtwolog','s','mln',8,'sym4');
@@ -221,20 +168,17 @@ function findDisplacement(aMotion, weightGyro2, t)
             magNoG(startAcc:endAcc,i) = 0;
         end
     end
-   
-    figure (3);
-    subplot(2,2,1);
-    plot(time,aMotion);
-    xlabel('Time (sec)');
-    ylabel('Linear Acceleration');
+    
+    subplot(2,2,3)
+    plot(time,magNoG)
+    xlabel('Time (sec)')
+    ylabel('Minus G Acceleration (m/sec^2)')
     legend('x','y','z');
     
-    figure (3);
-    subplot(2,2,3);
-    magNoG1 = magNoG * 9.8;
-    plot(time,magNoG1);
-    xlabel('Time (sec)');
-    ylabel('Filtered Linear Acceleration (m/sec^2)');
+    subplot(2,2,1)
+    plot(time,aMotion)
+    xlabel('Time (sec)')
+    ylabel('Acc Motion Vector Cartesian');
     legend('x','y','z');
     
     % First Integration (Acceleration - Veloicty)
@@ -244,30 +188,21 @@ function findDisplacement(aMotion, weightGyro2, t)
             velmagNoG(i,:) = [0,0,0];
         end
     end
-    figure (3);
-    subplot(2,2,2);
-    velmagNoG1 = velmagNoG * 9.8;
-    plot(time,velmagNoG1);
-    xlabel('Time (sec)');
-    ylabel('Velocity (m/sec)');
+    subplot(2,2,2)
+    plot(time,velmagNoG);
+    xlabel('Time (sec)')
+    ylabel('Velocity (m/sec)')
     legend('x','y','z');    
     
     % Second Integration (Velocity - Displacement)
     DisplacementmagNoG=cumtrapz(time, velmagNoG);
-    subplot(2,2,4);
-    DisplacementmagNoG1 = DisplacementmagNoG * 9.8;
-    plot(time,DisplacementmagNoG1);
+    subplot(2,2,4)
+    plot(time,DisplacementmagNoG);
     xlabel('Time (sec)')
-    ylabel('Displacement (m)');
+    ylabel('Displacement (m)')
     legend('x','y','z');
     
     TotalDisplacement = norm(DisplacementmagNoG(dataSize,:));
     disp('Total Displcement(m) = ');
     disp(TotalDisplacement * 9.8);
-%     figure (4);
-%     x = DisplacementmagNoG1(:,1);
-%     y = DisplacementmagNoG1(:,2);
-%   scatter(x,y);
-% % y = DisplacementmagNoG1(:,2);
-%   plot(DisplacementmagNoG1(:,1),DisplacementmagNoG1(:,2));
 end

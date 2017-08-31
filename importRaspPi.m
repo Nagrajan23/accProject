@@ -1,11 +1,11 @@
 clear
-%% Get file from Raspberry Pi
-fileReadName = '20170828-1313.txt';
+% Get file from Raspberry Pi
+fileReadName = '20170831-1210.txt';
 % fileReadName = [char(datetime('now','Format','yyyyMMdd-HHmm')-minutes(0)), '.txt'];
 
 if(~exist(fileReadName,'file'))
     if(~exist('mypi','var'))
-        mypi = raspi('155.246.44.11','pi','stevens123');
+        mypi = raspi('155.246.44.122','pi','stevens123');
 %         openShell(mypi)
     end
     raspLocation = '/home/pi/mpuu9255/MPU9255/';
