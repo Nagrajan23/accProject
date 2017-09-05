@@ -172,7 +172,7 @@ legend('x','y','z');
 figure (2);
 subplot(3,2,6);
 plot(t,aMotion);
-title('Angles of DCs with each axis');
+title('Linear Motion');
 legend('x','y','z');
 
 timeInS = zeros(len,1,'double');
