@@ -1,7 +1,8 @@
 close all;
 
 % importRaspPi;
-weightGyro = 20;
+weightGyro = 1;
+avRawSumThresh = 0.34;
 aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
 avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
 % aRaw0 = a;
@@ -107,7 +108,7 @@ end
 aAdjusted = zeros(len,3,'double');
 weightGyro2 = zeros(len,1,'double');
 for i = 1:len
-    if(sum(abs(avRaw(i,:))) < 0.2)
+    if(sum(abs(avRaw(i,:))) < avRawSumThresh)
         weightGyro2(i) = 0;
     else
         weightGyro2(i) = weightGyro;
