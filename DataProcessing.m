@@ -1,20 +1,22 @@
+%%
 close all;
 
+%% Import data from Raspberry Pi and Signal Processing and Filtering
+
 % importRaspPi;
+
 weightGyro = 0.1;
 avRawSumThresh = 0.34;
+
 aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
 avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
-% aRaw0 = a;
-% avRaw0 = av;
+    
+% Length of data for both sensors
 [lenA,~] = size(avRaw0);
 [lenAv,~] = size(aRaw0);
+% Finalizing Length and time of data
 len = min(lenA,lenAv);
 t = Untitled.Time(1:len);
-
-avRaw = avRaw0;
-aRaw1 = aRaw0;
-aRaw = aRaw0;
 
 figure (1);
 subplot(3,2,1);
@@ -34,54 +36,50 @@ ylim([-200 200]);
 for i = 1:3
     % De-noise noisy signal using minimax threshold with 
     % a multiple level estimation of noise standard deviation.
-    avRaw(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
-%     aRaw1(:,i) = wden(aRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
-    figure (1);
-    subplot(3,2,4);
-    plot(t,avRaw);
-    title('De-noised Angular Velocity');
-    legend('x','y','z');
-    ylim([-200 200]);
-%     subplot(4,1,2);
-%     plot(t,aRaw1);
+    avRaw1(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
     
-%     title('De-noised Acceleration');
-%     legend('x','y','z');
-    
-    
+%   Butterworth filter for Acceleration
     order = 6; % 6th Order Filter
     [b1,a1] = butter(order, 0.01, 'low');
-    aRaw(:,i) = filtfilt(b1 ,a1 , aRaw1(:,i));
+    aRaw1(:,i) = filtfilt(b1 ,a1 , aRaw0(:,i));
     
-    figure (1);
-    subplot(3,2,3);
-    plot(t,aRaw);
-    title('Low Pass Butterworth Filter (Acceleration)');
-    legend('x','y','z');
-    ylim([-2 2]);
+%     Median filter for acceleration
+    aRaw(:,i) = medfilt1(aRaw1(:,i),100);
     
-    aRaw1(:,i) = medfilt1(aRaw1(:,i),100);
-    aRaw1(1,i) = aRaw0(1,i);
-    
-    figure (1);
-    subplot(3,2,5);
-    plot(t,aRaw1);
-    title('Median Filter (Acceleration)');
-    legend('x','y','z');
-    ylim([-2 2]);
-    
-    avRaw(:,i) = avRaw(:,i) - mean(avRaw(1:300,i));
-    avRaw(:,i) = medfilt1(avRaw(:,i),100);
-    
-    figure (1);
-    subplot(3,2,6);
-    plot(t,avRaw);
-    title('Median Filter (Angular Velocity)');
-    legend('x','y','z');
-    ylim([-200 200]);
-    
+%     Median Filter for Angular Velocity
+    avRaw2(:,i) = avRaw1(:,i) - mean(avRaw1(1:300,i));
+    avRaw(:,i) = medfilt1(avRaw2(:,i),100);
 end
 
+figure (1);
+subplot(3,2,3);
+plot(t,aRaw1);
+title('Low Pass Butterworth Filter (Acceleration)');
+legend('x','y','z');
+ylim([-2 2]);
+
+figure (1);
+subplot(3,2,4);
+plot(t,avRaw1);
+title('De-noised Angular Velocity');
+legend('x','y','z');
+ylim([-200 200]);
+
+figure (1);
+subplot(3,2,5);
+plot(t,aRaw);
+title('Median Filter (Acceleration)');
+legend('x','y','z');
+ylim([-2 2]);
+
+figure (1);
+subplot(3,2,6);
+plot(t,avRaw);
+title('Median Filter (Angular Velocity)');
+legend('x','y','z');
+ylim([-200 200]);
+
+%%
 gSum = zeros(1,'double');
 for i = 1:300
     gSum = gSum + norm(aRaw0(i,:));
@@ -272,3 +270,4 @@ function findDisplacement(aMotion, weightGyro2, t)
 % % y = DisplacementmagNoG1(:,2);
 %   plot(DisplacementmagNoG1(:,1),DisplacementmagNoG1(:,2));
 end
+%%
