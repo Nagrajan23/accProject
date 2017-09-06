@@ -1,7 +1,7 @@
 close all;
 
 % importRaspPi;
-weightGyro = 0.1;
+weightGyro = 0;
 avRawSumThresh = 0.34;
 aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
 avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
