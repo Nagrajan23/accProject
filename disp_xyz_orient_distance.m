@@ -3,14 +3,22 @@ close all;
 % importRaspPi;
 weightGyro = 5;
 avRawSumThresh = 0.34;
-aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
-avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
-% aRaw0 = a;
-% avRaw0 = av;
+% gMultiplier = gMultiplier;
+gMultiplier = 1;
+
+% aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
+% avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
+% t = Untitled.Time(1:len);
+aRaw0 = a;
+avRaw0 = av;
+
 [lenA,~] = size(avRaw0);
 [lenAv,~] = size(aRaw0);
 len = min(lenA,lenAv);
-t = Untitled.Time(1:len);
+
+aRaw0 = aRaw0(1:len,:);
+avRaw0 = avRaw0(1:len,:);
+t = t(1:len);
 
 avRaw = avRaw0;
 aRaw1 = aRaw0;
@@ -99,8 +107,13 @@ for i = 2:len
     else
         avPreviousRaw = mean(avRaw(i-20:i-1,:));
     end
-    timePeriod = seconds(t(i) - t(i-1));
-%     timePeriod = (t(i) - t(i-1));
+    
+    if(exist('a','var') == 1)
+        timePeriod = (t(i) - t(i-1));
+    else
+        timePeriod = seconds(t(i) - t(i-1));
+    end
+    
     [aEst(i,:),anglesPrev] = findEstimate(avRaw(i,:), aEst(i-1,:),...
         avPreviousRaw, anglesPrev, gMean, timePeriod);
 end
@@ -178,7 +191,11 @@ legend('x','y','z');
 
 timeInS = zeros(len,1,'double');
 for i = 2:len
-    timeInS(i) = timeInS(i-1) + seconds(t(i) - t(i-1));
+    if(exist('a','var') == 1)
+        timeInS(i) = timeInS(i-1) + (t(i) - t(i-1));
+    else
+        timeInS(i) = timeInS(i-1) + seconds(t(i) - t(i-1));
+    end
 end
 
 findDisplacement(aMotion, weightGyro2, timeInS);
@@ -201,6 +218,7 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
 end
 
 function findDisplacement(aMotion, weightGyro2, t)
+    gMultiplier = 1;
     magNoG = aMotion;
     time = t;
     [dataSize,~] = size(aMotion);
@@ -232,7 +250,7 @@ function findDisplacement(aMotion, weightGyro2, t)
     
     figure (3);
     subplot(2,2,3);
-    magNoG1 = magNoG * 9.8;
+    magNoG1 = magNoG * gMultiplier;
     plot(time,magNoG1);
     xlabel('Time (sec)');
     ylabel('Filtered Linear Acceleration (m/sec^2)');
@@ -247,7 +265,7 @@ function findDisplacement(aMotion, weightGyro2, t)
     end
     figure (3);
     subplot(2,2,2);
-    velmagNoG1 = velmagNoG * 9.8;
+    velmagNoG1 = velmagNoG * gMultiplier;
     plot(time,velmagNoG1);
     xlabel('Time (sec)');
     ylabel('Velocity (m/sec)');
@@ -256,7 +274,7 @@ function findDisplacement(aMotion, weightGyro2, t)
     % Second Integration (Velocity - Displacement)
     DisplacementmagNoG=cumtrapz(time, velmagNoG);
     subplot(2,2,4);
-    DisplacementmagNoG1 = DisplacementmagNoG * 9.8;
+    DisplacementmagNoG1 = DisplacementmagNoG * gMultiplier;
     plot(time,DisplacementmagNoG1);
     xlabel('Time (sec)')
     ylabel('Displacement (m)');
@@ -264,7 +282,7 @@ function findDisplacement(aMotion, weightGyro2, t)
     
     TotalDisplacement = norm(DisplacementmagNoG(dataSize,:));
     disp('Total Displcement(m) = ');
-    disp(TotalDisplacement * 9.8);
+    disp(TotalDisplacement * gMultiplier);
 %     figure (4);
 %     x = DisplacementmagNoG1(:,1);
 %     y = DisplacementmagNoG1(:,2);
