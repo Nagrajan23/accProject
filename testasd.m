@@ -32,6 +32,7 @@ subplot(3,2,1);
 plot(t,aRaw0);
 title('Raw Acceleration');
 legend('x','y','z');
+
 ylim([-2 2]);
 
 figure (1);

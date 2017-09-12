@@ -29,14 +29,18 @@ subplot(3,2,1);
 plot(t,aRaw0);
 title('Raw Acceleration');
 legend('x','y','z');
-ylim([-2 2]);
+if(exist('a','var') == 0)
+    ylim([-2 2]);
+end
 
 figure (1);
 subplot(3,2,2);
 plot(t,avRaw0);
 title('Raw Angular Velocity');
 legend('x','y','z');
-ylim([-200 200]);
+if(exist('a','var') == 0)
+    ylim([-200 200]);
+end
 
 % Loop for filtering all axis of raw data
 for i = 1:3
@@ -49,7 +53,9 @@ for i = 1:3
     plot(t,avRaw);
     title('De-noised Angular Velocity');
     legend('x','y','z');
-    ylim([-200 200]);
+    if(exist('a','var') == 0)
+        ylim([-200 200]);
+    end
 %     subplot(4,1,2);
 %     plot(t,aRaw1);
     
@@ -66,7 +72,9 @@ for i = 1:3
     plot(t,aRaw);
     title('Low Pass Butterworth Filter (Acceleration)');
     legend('x','y','z');
-    ylim([-2 2]);
+    if(exist('a','var') == 0)
+        ylim([-2 2]);
+    end
     
     aRaw1(:,i) = medfilt1(aRaw1(:,i),100);
     aRaw1(1,i) = aRaw0(1,i);
@@ -76,7 +84,9 @@ for i = 1:3
     plot(t,aRaw1);
     title('Median Filter (Acceleration)');
     legend('x','y','z');
-    ylim([-2 2]);
+    if(exist('a','var') == 0)
+        ylim([-2 2]);
+    end
     
     avRaw(:,i) = avRaw(:,i) - mean(avRaw(1:300,i));
     avRaw(:,i) = medfilt1(avRaw(:,i),100);
@@ -86,8 +96,9 @@ for i = 1:3
     plot(t,avRaw);
     title('Median Filter (Angular Velocity)');
     legend('x','y','z');
-    ylim([-200 200]);
-    
+    if(exist('a','var') == 0)
+        ylim([-200 200]);
+    end
 end
 
 gSum = zeros(1,'double');
