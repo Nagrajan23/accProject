@@ -10,7 +10,8 @@ gMultiplier = 1;
 % avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
 % t = Untitled.Time(1:len);
 aRaw0 = a;
-avRaw0 = av;
+aRawNormal = normr(a);
+avRaw0 = rad2deg(av);
 
 [lenA,~] = size(avRaw0);
 [lenAv,~] = size(aRaw0);
@@ -46,8 +47,9 @@ end
 for i = 1:3
     % De-noise noisy signal using minimax threshold with 
     % a multiple level estimation of noise standard deviation.
-    avRaw(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
+%     avRaw(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
 %     aRaw1(:,i) = wden(aRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
+    avRaw = avRaw0;
     figure (1);
     subplot(3,2,4);
     plot(t,avRaw);
@@ -56,27 +58,17 @@ for i = 1:3
     if(exist('a','var') == 0)
         ylim([-200 200]);
     end
-%     subplot(4,1,2);
-%     plot(t,aRaw1);
-    
-%     title('De-noised Acceleration');
-%     legend('x','y','z');
-    
-    
-%     order = 6; % 6th Order Filter
-%     [b1,a1] = butter(order, 0.01, 'low');
-%     aRaw(:,i) = filtfilt(b1 ,a1 , aRaw1(:,i));
     
     figure (1);
     subplot(3,2,3);
-    plot(t,aRaw);
-    title('Low Pass Butterworth Filter (Acceleration)');
-    legend('x','y','z');
+%     plot(t,aRaw);
+%     title('Low Pass Butterworth Filter (Acceleration)');
+%     legend('x','y','z');
     if(exist('a','var') == 0)
         ylim([-2 2]);
     end
     
-    aRaw1(:,i) = medfilt1(aRaw1(:,i),100);
+    aRaw1(:,i) = medfilt1(aRaw1(:,i),5);
     aRaw1(1,i) = aRaw0(1,i);
     
     % Just Median Filter
@@ -92,7 +84,7 @@ for i = 1:3
     end
     
     avRaw(:,i) = avRaw(:,i) - mean(avRaw(1:300,i));
-    avRaw(:,i) = medfilt1(avRaw(:,i),100);
+    avRaw(:,i) = medfilt1(avRaw(:,i),5);
     
     figure (1);
     subplot(3,2,6);
@@ -113,7 +105,7 @@ gMean = gSum / 300
 aEst = zeros(len,3,'double');
 anglesPrev = [rad2deg(atan2(aRaw(1,1), aRaw(1,3))),...
     rad2deg(atan2(aRaw(1,2), aRaw(1,3)))];
-aEst(1,:) = aRaw(1,:);
+aEst(1,:) = aRaw(1,:)/norm(aRaw(1,:));
 
 for i = 2:len
     if(i < 25)
@@ -128,7 +120,7 @@ for i = 2:len
         timePeriod = seconds(t(i) - t(i-1));
     end
     
-    [aEst(i,:),anglesPrev] = findEstimate(avRaw(i,:), aEst(i-1,:),...
+    [aEst(i,:),anglesPrev] = findEstimate(avRaw(i,:), aRaw(i,:),...
         avPreviousRaw, anglesPrev, gMean, timePeriod);
 end
 
@@ -140,39 +132,33 @@ for i = 1:len
     else
         weightGyro2(i) = weightGyro;
     end
-    aAdjusted(i,:) = (aRaw(i,:) + aEst(i,:) * weightGyro2(i)) / (1 + weightGyro2(i));
+    aAdjusted(i,:) = (aRawNormal(i,:) + aEst(i,:) * weightGyro2(i)) / (1 + weightGyro2(i));
 end
 % aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
 
 figure (2);
-subplot(3,2,1);
+subplot(3,2,3);
 plot(t,aAdjusted);
 title('Acc Gyro Weight Adjusted');
 legend('x','y','z');
 figure (2);
-subplot(3,2,2);
+subplot(3,2,1);
 plot(t,aEst);
 title('Gyro Estimated DCs');
 legend('x','y','z');
-% figure (2);
-% subplot(2,2,3);
-% plot(t,aRaw);
-% title('Acc Raw');
-% legend('x','y','z');
-% subplot(2,2,4);
-% plot(t,avRaw);
-% title('Angular Velocity Raw');
-% legend('x','y','z');
 
 gSph = zeros(len,3,'double');
 gSphDegree = zeros(len,3,'double');
 [gSph(:,1),gSph(:,2),gSph(:,3)] = cart2sph(aAdjusted(:,1),aAdjusted(:,2),aAdjusted(:,3));
 gSphDegree(:,1:2) = rad2deg(gSph(:,1:2));
 figure (2);
-subplot(3,2,3);
-plot(t,gSphDegree(:,1:2));
-title('Theta Phi of DCs');
-legend('Theta','Phi');
+subplot(3,2,2);
+% plot(t,gSphDegree(:,1:2));
+% title('Theta Phi of DCs');
+% legend('Theta','Phi');
+plot(t,aRaw);
+title('Raw Acc Filtered');
+legend('x','y','z');
 
 gVector = zeros(len,3,'double');
 gSph(:,3) = gMean;
@@ -183,13 +169,7 @@ plot(t,gVector);
 title('Gravity Vector Cartesian');
 legend('x','y','z');
 aMotion = aRaw - gVector;
-% subplot(2,2,3);
-% plot(t,aRaw0);
-% title(' Purely Raw Acceleration (m/sec^2)')
-% legend('x','y','z');
 
-% anglesDC = zeros(len,3,'double');
-% aEstR = sqrt(aEst(:,1).^2 + aEst(:,2).^2 + aEst(:,3).^2);
 anglesDC = rad2deg(abs(acos(aEst)));
 figure (2);
 subplot(3,2,5);
@@ -214,7 +194,7 @@ end
 
 findDisplacement(aMotion, weightGyro2, timeInS);
 
-function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
+function [aEst,angles] = findEstimate(avCurrentRaw, aCurrentRaw,...
         avPreviousRaw, anglesPrev, gMean, timePeriod)
 %     timePeriod = 0.0022;
     aEst = zeros(1,3,'double');    
@@ -228,7 +208,7 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
 %     aEst(2) =  1  / sqrt(1  +   cotd(angleYZcurr)^2 * secd(angleXZcurr)^2 );
     aEst(1) = sind(angleXZcurr) / sqrt(1 + (cosd(angleXZcurr)^2)*(tand(angleYZcurr)^2));
     aEst(2) = sind(angleYZcurr) / sqrt(1 + (cosd(angleYZcurr)^2)*(tand(angleXZcurr)^2));
-    aEst(3) =  sign(aPreviousEst(3)) * sqrt(1 - aEst(1)^2 - aEst(2)^2);
+    aEst(3) =  sign(aCurrentRaw(3)) * sqrt(1 - aEst(1)^2 - aEst(2)^2);
 end
 
 function findDisplacement(aMotion, weightGyro2, t)
@@ -297,10 +277,4 @@ function findDisplacement(aMotion, weightGyro2, t)
     TotalDisplacement = norm(DisplacementmagNoG(dataSize,:));
     disp('Total Displcement(m) = ');
     disp(TotalDisplacement * gMultiplier);
-%     figure (4);
-%     x = DisplacementmagNoG1(:,1);
-%     y = DisplacementmagNoG1(:,2);
-%   scatter(x,y);
-% % y = DisplacementmagNoG1(:,2);
-%   plot(DisplacementmagNoG1(:,1),DisplacementmagNoG1(:,2));
 end
