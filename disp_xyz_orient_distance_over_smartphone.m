@@ -63,9 +63,9 @@ for i = 1:3
 %     legend('x','y','z');
     
     
-    order = 6; % 6th Order Filter
-    [b1,a1] = butter(order, 0.01, 'low');
-    aRaw(:,i) = filtfilt(b1 ,a1 , aRaw1(:,i));
+%     order = 6; % 6th Order Filter
+%     [b1,a1] = butter(order, 0.01, 'low');
+%     aRaw(:,i) = filtfilt(b1 ,a1 , aRaw1(:,i));
     
     figure (1);
     subplot(3,2,3);
@@ -79,6 +79,9 @@ for i = 1:3
     aRaw1(:,i) = medfilt1(aRaw1(:,i),100);
     aRaw1(1,i) = aRaw0(1,i);
     
+    % Just Median Filter
+    aRaw = aRaw1;
+       
     figure (1);
     subplot(3,2,5);
     plot(t,aRaw1);
