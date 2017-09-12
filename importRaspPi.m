@@ -5,11 +5,7 @@ fileReadName = [char(datetime('now','Format','yyyyMMdd-HHmm')-minutes(0)), '.txt
 
 if(~exist(fileReadName,'file'))
     if(~exist('mypi','var'))
-<<<<<<< HEAD
         mypi = raspi('155.246.44.54','pi','stevens123');
-=======
-        mypi = raspi('155.246.169.52','pi','stevens123');
->>>>>>> 1f1047a873cd4b75af2e1a98f2175e6d38e2f28e
 %         openShell(mypi)
     end
     raspLocation = '/home/pi/mpuu9255/MPU9255/';
