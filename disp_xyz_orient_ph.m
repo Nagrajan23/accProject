@@ -2,7 +2,7 @@ close all;
 
 % importRaspPi;
 weightGyro = 5;
-avRawSumThresh = 0.34;
+avRawSumThresh = 3; %old: 0.34
 % gMultiplier = gMultiplier;
 gMultiplier = 1;
 
@@ -47,9 +47,9 @@ end
 for i = 1:3
     % De-noise noisy signal using minimax threshold with 
     % a multiple level estimation of noise standard deviation.
-%     avRaw(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
+    avRaw(:,i) = wden(avRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
 %     aRaw1(:,i) = wden(aRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
-    avRaw = avRaw0;
+%     avRaw(:,i) = avRaw0(:,i);
     figure (1);
     subplot(3,2,4);
     plot(t,avRaw);
@@ -84,7 +84,7 @@ for i = 1:3
     end
     
     avRaw(:,i) = avRaw(:,i) - mean(avRaw(1:300,i));
-    avRaw(:,i) = medfilt1(avRaw(:,i),5);
+    avRaw(:,i) = medfilt1(avRaw(:,i),50);
     
     figure (1);
     subplot(3,2,6);
@@ -194,6 +194,11 @@ end
 
 findDisplacement(aMotion, weightGyro2, timeInS);
 
+figure, plot(t,weightGyro2);
+test = sum(abs(avRaw),2);
+hold on;
+plot(t,test);
+
 function [aEst,angles] = findEstimate(avCurrentRaw, aCurrentRaw,...
         avPreviousRaw, anglesPrev, gMean, timePeriod)
 %     timePeriod = 0.0022;
@@ -234,7 +239,7 @@ function findDisplacement(aMotion, weightGyro2, t)
             magNoG(startAcc:endAcc,i) = 0;
         end
     end
-   
+   magNoG = aMotion;
     figure (3);
     subplot(2,2,1);
     plot(time,aMotion);
