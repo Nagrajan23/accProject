@@ -33,8 +33,8 @@ imuData = readMessages(imuBag);
 imurawData = readMessages(imurawBag);
 toc
 disp('Read IMU Data');
-cmdvelData = readMessages(cmdvelBag);
-disp('Read cmd');
+% cmdvelData = readMessages(cmdvelBag);
+% disp('Read cmd');
 odomfiltData = readMessages(odomfiltBag);
 toc
 disp('Read odom Messages');

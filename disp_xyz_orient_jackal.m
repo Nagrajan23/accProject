@@ -31,14 +31,15 @@ t = t(1:len);
 avRaw = avRaw0;
 aRaw1 = aRaw0;
 aRaw = aRaw0;
-
+aYlim = [-15 15];
 figure (1);
 subplot(3,2,1);
 plot(t,aRaw0);
 title('Raw Acceleration');
 legend('x','y','z');
+% ylim(aYlim);
 if(exist('a','var') == 0)
-    ylim([-2 2]);
+    ylim(aYlim);
 end
 
 avYlim = [-5 5];
@@ -62,6 +63,7 @@ for i = 1:3
     plot(t,avRaw);
     title('De-noised Angular Velocity');
     legend('x','y','z');
+    ylim(aYlim);
     if(exist('a','var') == 0)
         ylim(avYlim);
     end
@@ -81,8 +83,9 @@ for i = 1:3
     plot(t,aRaw);
     title('Low Pass Butterworth Filter (Acceleration)');
     legend('x','y','z');
+%     ylim(aYlim);
     if(exist('a','var') == 0)
-        ylim([-2 2]);
+        ylim(aYlim);
     end
     
     aRaw1(:,i) = medfilt1(aRaw1(:,i),100);
@@ -94,7 +97,7 @@ for i = 1:3
     title('Median Filter (Acceleration)');
     legend('x','y','z');
     if(exist('a','var') == 0)
-        ylim([-2 2]);
+        ylim(aYlim);
     end
     
     avRaw(:,i) = avRaw(:,i) - mean(avRaw(1:300,i));
@@ -211,11 +214,11 @@ end
 
 findDisplacement(aMotion, weightGyro2, timeInS);
 
-[lenPos,~] = size(odomData);
-pos1 = [odomData{1}.Pose.Pose.Position.X,...
-    odomData{1}.Pose.Pose.Position.Y,odomData{1}.Pose.Pose.Position.Z];
-pos2 = [odomData{lenPos}.Pose.Pose.Position.X,...
-    odomData{lenPos}.Pose.Pose.Position.Y,odomData{lenPos}.Pose.Pose.Position.Z];
+[lenPos,~] = size(odomfiltData);
+pos1 = [odomfiltData{1}.Pose.Pose.Position.X,...
+    odomfiltData{1}.Pose.Pose.Position.Y,odomfiltData{1}.Pose.Pose.Position.Z];
+pos2 = [odomfiltData{lenPos}.Pose.Pose.Position.X,...
+    odomfiltData{lenPos}.Pose.Pose.Position.Y,odomfiltData{lenPos}.Pose.Pose.Position.Z];
 odomDistance = norm([pos1;pos2])
 
 function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
@@ -236,7 +239,7 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
 end
 
 function findDisplacement(aMotion, weightGyro2, t)
-    gMultiplier = 0.8;
+    gMultiplier = 0.2;
     magNoG = aMotion;
     time = t;
     [dataSize,~] = size(aMotion);
