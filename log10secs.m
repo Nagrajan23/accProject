@@ -34,6 +34,6 @@ if(m.PositionSensorEnabled)
     [lat, lon, tpos, spd] = poslog(m);
 end
 
-filename = ['BurLounge_', char(datetime('now','Format','MMdd_HHmm'))];
+filename = ['ADS_', char(datetime('now','Format','MMdd_HHmm'))];
 % save(filename);
 % clear m;
