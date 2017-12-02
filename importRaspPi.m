@@ -1,6 +1,6 @@
 clear
 % Get file from Raspberry Pi
-fileReadName = '20171113-1659.txt';
+fileReadName = '20171113-1705.txt';
 % fileReadName = [char(datetime('now','Format','yyyyMMdd-HHmm')-minutes(0)), '.txt'];
 
 if(~exist(fileReadName,'file'))

@@ -246,7 +246,7 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
 end
 
 function DisplacementmagNoG = findDisplacement(aMotion, weightGyro2, t)
-    gMultiplier = 4;
+    gMultiplier = 3.5;
     magNoG = aMotion;
     time = t;
     [dataSize,~] = size(aMotion);
@@ -315,6 +315,13 @@ function DisplacementmagNoG = findDisplacement(aMotion, weightGyro2, t)
     TotalDisplacement = norm(DisplacementmagNoG(dataSize,:));
     disp('Total Displcement(m) = ');
     disp(TotalDisplacement * gMultiplier);
+    
+    d = hypot(diff(DisplacementmagNoG(:,1)), diff(DisplacementmagNoG(:,2)));
+    TotalDistance = sum(d); 
+    disp('Total Distance(m) = ');
+    disp(TotalDistance * gMultiplier);
+    
+    
     
     figure (4);
     
