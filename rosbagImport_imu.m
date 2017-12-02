@@ -1,6 +1,6 @@
 clear
 tic
-bagFilename = 'imu_1710_2.bag';
+bagFilename = 'imu_1311_1.bag'; %Filename to be imported
 if(~exist(bagFilename,'file'))
     if(~exist('rosDevice1','var'))
         rosDevice = rosdevice('10.10.10.101','administrator','clearpath');

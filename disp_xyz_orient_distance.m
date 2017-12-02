@@ -6,15 +6,16 @@ avRawSumThresh = 0.34;
 % gMultiplier = gMultiplier;
 gMultiplier = 1;
 
-% aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
-% avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
-% t = Untitled.Time(1:len);
-aRaw0 = a;
-avRaw0 = av;
+aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
+avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
+
+% aRaw0 = a;
+% avRaw0 = av;
 
 [lenA,~] = size(avRaw0);
 [lenAv,~] = size(aRaw0);
 len = min(lenA,lenAv);
+t = Untitled.Time(1:len);
 
 aRaw0 = aRaw0(1:len,:);
 avRaw0 = avRaw0(1:len,:);
@@ -29,6 +30,8 @@ subplot(3,2,1);
 plot(t,aRaw0);
 title('Raw Acceleration');
 legend('x','y','z');
+xlabel('Time')
+ylabel("Acceleration(g's)");
 if(exist('a','var') == 0)
     ylim([-2 2]);
 end
@@ -38,6 +41,8 @@ subplot(3,2,2);
 plot(t,avRaw0);
 title('Raw Angular Velocity');
 legend('x','y','z');
+xlabel('Time')
+ylabel("Angular Velocity(rad/s)");
 if(exist('a','var') == 0)
     ylim([-200 200]);
 end
@@ -53,6 +58,8 @@ for i = 1:3
     plot(t,avRaw);
     title('De-noised Angular Velocity');
     legend('x','y','z');
+    xlabel('Time')
+    ylabel("Angular Velocity(rad/s)");
     if(exist('a','var') == 0)
         ylim([-200 200]);
     end
@@ -72,6 +79,8 @@ for i = 1:3
     plot(t,aRaw);
     title('Low Pass Butterworth Filter (Acceleration)');
     legend('x','y','z');
+    xlabel('Time')
+    ylabel("Acceleration(g's)");
     if(exist('a','var') == 0)
         ylim([-2 2]);
     end
@@ -84,6 +93,8 @@ for i = 1:3
     plot(t,aRaw1);
     title('Median Filter (Acceleration)');
     legend('x','y','z');
+    xlabel('Time')
+    ylabel("Acceleration(g's)");
     if(exist('a','var') == 0)
         ylim([-2 2]);
     end
@@ -96,6 +107,8 @@ for i = 1:3
     plot(t,avRaw);
     title('Median Filter (Angular Velocity)');
     legend('x','y','z');
+    xlabel('Time')
+    ylabel("Angular Velocity(rad/s)");
     if(exist('a','var') == 0)
         ylim([-200 200]);
     end
@@ -146,10 +159,12 @@ subplot(3,2,1);
 plot(t,aAdjusted);
 title('Acc Gyro Weight Adjusted');
 legend('x','y','z');
+ylim([-0.5 1.5]);
 figure (2);
 subplot(3,2,2);
 plot(t,aEst);
 title('Gyro Estimated DCs');
+ylim([-0.5 1.5]);
 legend('x','y','z');
 % figure (2);
 % subplot(2,2,3);
@@ -178,6 +193,7 @@ figure (2);
 subplot(3,2,4);
 plot(t,gVector);
 title('Gravity Vector Cartesian');
+ylim([-0.5 1.5]);
 legend('x','y','z');
 aMotion = aRaw - gVector;
 % subplot(2,2,3);
@@ -209,7 +225,8 @@ for i = 2:len
     end
 end
 
-findDisplacement(aMotion, weightGyro2, timeInS);
+DisplacementmagNoG = findDisplacement(aMotion, weightGyro2, timeInS);
+
 
 function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
         avPreviousRaw, anglesPrev, gMean, timePeriod)
@@ -228,8 +245,8 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
     aEst(3) =  sign(aPreviousEst(3)) * sqrt(1 - aEst(1)^2 - aEst(2)^2);
 end
 
-function findDisplacement(aMotion, weightGyro2, t)
-    gMultiplier = 1;
+function DisplacementmagNoG = findDisplacement(aMotion, weightGyro2, t)
+    gMultiplier = 4;
     magNoG = aMotion;
     time = t;
     [dataSize,~] = size(aMotion);
@@ -255,16 +272,18 @@ function findDisplacement(aMotion, weightGyro2, t)
     figure (3);
     subplot(2,2,1);
     plot(time,aMotion);
+    title('Linear Acceleration');
     xlabel('Time (sec)');
-    ylabel('Linear Acceleration');
+    ylabel('Acceleration (m/s^2)');
     legend('x','y','z');
     
     figure (3);
     subplot(2,2,3);
     magNoG1 = magNoG * gMultiplier;
     plot(time,magNoG1);
+    title('Filtered Linear Acceleration');
     xlabel('Time (sec)');
-    ylabel('Filtered Linear Acceleration (m/sec^2)');
+    ylabel('Acceleration (m/s^2)');
     legend('x','y','z');
     
     % First Integration (Acceleration - Veloicty)
@@ -278,8 +297,9 @@ function findDisplacement(aMotion, weightGyro2, t)
     subplot(2,2,2);
     velmagNoG1 = velmagNoG * gMultiplier;
     plot(time,velmagNoG1);
+    title('Velocity');
     xlabel('Time (sec)');
-    ylabel('Velocity (m/sec)');
+    ylabel('Velocity (m/s)');
     legend('x','y','z');    
     
     % Second Integration (Velocity - Displacement)
@@ -287,6 +307,7 @@ function findDisplacement(aMotion, weightGyro2, t)
     subplot(2,2,4);
     DisplacementmagNoG1 = DisplacementmagNoG * gMultiplier;
     plot(time,DisplacementmagNoG1);
+    title('Displacement');    
     xlabel('Time (sec)')
     ylabel('Displacement (m)');
     legend('x','y','z');
@@ -294,6 +315,21 @@ function findDisplacement(aMotion, weightGyro2, t)
     TotalDisplacement = norm(DisplacementmagNoG(dataSize,:));
     disp('Total Displcement(m) = ');
     disp(TotalDisplacement * gMultiplier);
+    
+    figure (4);
+    
+    plot(DisplacementmagNoG1(:,1),DisplacementmagNoG1(:,2));
+    hold on
+    plot(DisplacementmagNoG1(1,1),DisplacementmagNoG1(1,2),'o','MarkerSize',10,'MarkerFaceColor','g')
+    hold on
+    plot(DisplacementmagNoG1(length(DisplacementmagNoG1(:,1)),1),DisplacementmagNoG1(length(DisplacementmagNoG1(:,2)),2),'o','MarkerSize',10,'MarkerFaceColor','b')
+    title('2D Movement');
+    xlabel('X-Axis (m)')
+    ylabel("Y-Axis (m)");
+    legend('Movement Pattern');
+    grid on
+    
+    
 %     figure (4);
 %     x = DisplacementmagNoG1(:,1);
 %     y = DisplacementmagNoG1(:,2);

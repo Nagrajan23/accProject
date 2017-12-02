@@ -44,13 +44,13 @@ gyro_scaled_x = zeros(len,1,'double');
 gyro_scaled_y = zeros(len,1,'double');
 rotation_x = zeros(len,1,'double');
 rotation_y = zeros(len,1,'double');
-last_x(1) = degree_x
-last_y(1) = degree_y
+last_x(1) = degree_x;
+last_y(1) = degree_y;
 gyro_offset_x = av(1,1);
 gyro_offset_y = av(1,2);
 
-gyro_total_x = last_x(1) - gyro_offset_x
-gyro_total_y = last_y(1) - gyro_offset_y
+gyro_total_x = last_x(1) - gyro_offset_x;
+gyro_total_y = last_y(1) - gyro_offset_y;
 
 for i = 2:len
     gyro_scaled_x(i) = av(i,1);
