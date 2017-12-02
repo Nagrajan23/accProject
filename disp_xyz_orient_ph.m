@@ -1,11 +1,11 @@
 close all;
 clear all;
-load('ADS_1201_1855.mat')
+load('ADSLab_1202_1209.mat')
 % importRaspPi;
 weightGyro = 5;
 avRawSumThresh = 0.5; %old: 0.34
 % gMultiplier = gMultiplier;
-gMultiplier = 2;
+gMultiplier = 1;
 
 % aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
 % avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
@@ -218,7 +218,7 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aCurrentRaw,...
 end
 
 function findDisplacement(aMotion, weightGyro2, t)
-    gMultiplier = 1.4*2;
+    gMultiplier = 1;
     magNoG = aMotion;
     time = t;
     [dataSize,~] = size(aMotion);

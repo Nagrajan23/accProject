@@ -1,5 +1,5 @@
 close all;
-
+clear
 % importRaspPi;
 weightGyro = 5;
 avRawSumThresh = 0.04;
@@ -8,7 +8,7 @@ gMultiplier = 1;
 
 % aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
 % avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
-load('ADS_1201_1855.mat')
+load('ADSLab_1202_1209.mat')
 aRaw0 = a./10;
 avRaw0 = av;
 
