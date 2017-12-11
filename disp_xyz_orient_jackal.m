@@ -4,7 +4,7 @@ close all;
 weightGyro = 5;
 avRawSumThresh = 0.34;
 % gMultiplier = gMultiplier;
-gMultiplier = 1;
+gMultiplier = 0.195;
 
 % t = Untitled.Time(1:len);
 [len,~] = size(imuData);
@@ -28,33 +28,33 @@ end
 % avRaw0 = avRaw0(1:len,:);
 t = t(1:len);
 
+timeInS = zeros(len,1,'double');
+for i = 2:len
+    timeInS(i) = timeInS(i-1) + (t(i) - t(i-1));
+end
+
 avRaw = avRaw0;
 aRaw1 = aRaw0;
 aRaw = aRaw0;
-aYlim = [-15 15];
+
 figure (1);
 subplot(3,2,1);
-plot(t,aRaw0);
+plot(timeInS,aRaw0/9.8);
 title('Raw Acceleration');
 legend('x','y','z');
-xlabel('Time')
+xlabel('Time (sec)')
 ylabel("Acceleration(g's)");
-% ylim(aYlim);
-if(exist('a','var') == 0)
-    ylim(aYlim);
-end
+ylim([-2 2]);
 
-avYlim = [-5 5];
+
 figure (1);
 subplot(3,2,2);
-plot(t,avRaw0);
+plot(timeInS,avRaw0);
 title('Raw Angular Velocity');
 legend('x','y','z');
-xlabel('Time')
+xlabel('Time (sec)')
 ylabel("Angular Velocity(rad/s)");
-if(exist('a','var') == 0)
-    ylim(avYlim);
-end
+ylim([-50 50]);
 
 % Loop for filtering all axis of raw data
 for i = 1:3
@@ -64,15 +64,12 @@ for i = 1:3
 %     aRaw1(:,i) = wden(aRaw0(:,i),'modwtsqtwolog','s','mln',8,'sym4');
     figure (1);
     subplot(3,2,4);
-    plot(t,avRaw);
+    plot(timeInS,avRaw);
     title('De-noised Angular Velocity');
     legend('x','y','z');
-    xlabel('Time')
+    xlabel('Time (sec)')
     ylabel("Angular Velocity(rad/s)");
-    ylim(aYlim);
-    if(exist('a','var') == 0)
-        ylim(avYlim);
-    end
+    ylim([-50 50]);
 %     subplot(4,1,2);
 %     plot(t,aRaw1);
     
@@ -86,43 +83,36 @@ for i = 1:3
     
     figure (1);
     subplot(3,2,3);
-    plot(t,aRaw);
+    plot(timeInS,aRaw/9.8);
     title('Low Pass Butterworth Filter (Acceleration)');
     legend('x','y','z');
-    xlabel('Time')
+    xlabel('Time (sec)')
     ylabel("Acceleration(g's)");
-%     ylim(aYlim);
-    if(exist('a','var') == 0)
-        ylim(aYlim);
-    end
+    ylim([-2 2]);
     
     aRaw1(:,i) = medfilt1(aRaw1(:,i),100);
     aRaw1(1,i) = aRaw0(1,i);
     
     figure (1);
     subplot(3,2,5);
-    plot(t,aRaw1);
+    plot(timeInS,aRaw1/9.8);
     title('Median Filter (Acceleration)');
     legend('x','y','z');
-    xlabel('Time')
+    xlabel('Time (sec)')
     ylabel("Acceleration(g's)");
-    if(exist('a','var') == 0)
-        ylim(aYlim);
-    end
+    ylim([-2 2]);
     
     avRaw(:,i) = avRaw(:,i) - mean(avRaw(1:300,i));
     avRaw(:,i) = medfilt1(avRaw(:,i),100);
     
     figure (1);
     subplot(3,2,6);
-    plot(t,avRaw);
+    plot(timeInS,avRaw);
     title('Median Filter (Angular Velocity)');
     legend('x','y','z');
-    xlabel('Time')
+    xlabel('Time (sec)')
     ylabel("Angular Velocity(rad/s)");
-    if(exist('a','var') == 0)
-        ylim(avYlim);
-    end
+    ylim([-50 50]);
 end
 
 gSum = zeros(1,'double');
@@ -162,16 +152,20 @@ end
 
 figure (2);
 subplot(3,2,1);
-plot(t,aAdjusted);
+plot(timeInS,aAdjusted/9.8);
 title('Acc Gyro Weight Adjusted');
 legend('x','y','z');
-ylim([-5 15]);
+xlabel('Time (sec)')
+ylabel("Unit Vector (g's)")
+ylim([-0.5 1.5]);
 figure (2);
 subplot(3,2,2);
-plot(t,aEst);
+plot(timeInS,aEst/9.8);
 title('Gyro Estimated DCs');
 legend('x','y','z');
-ylim([-5 15]);
+xlabel('Time (sec)')
+ylim([-0.5 1.5]);
+ylabel("Unit Vector (g's)");
 % figure (2);
 % subplot(2,2,3);
 % plot(t,aRaw);
@@ -188,19 +182,23 @@ gSphDegree = zeros(len,3,'double');
 gSphDegree(:,1:2) = rad2deg(gSph(:,1:2));
 figure (2);
 subplot(3,2,3);
-plot(t,gSphDegree(:,1:2));
+plot(timeInS,gSphDegree(:,1:2));
 title('Theta Phi of DCs');
-legend('Theta','Phi');
+legend('Azimuth Angle','Polar Angle');
+xlabel('Time (sec)')
+ylabel({"Azimuth and"; "Polar Angles"; "(Degree's)"});
 
 gVector = zeros(len,3,'double');
 gSph(:,3) = gMean;
 [gVector(:,1),gVector(:,2),gVector(:,3)] = sph2cart(gSph(:,1),gSph(:,2),gSph(:,3));
 figure (2);
 subplot(3,2,4);
-plot(t,gVector);
+plot(timeInS,gVector/9.8);
 title('Gravity Vector Cartesian');
 legend('x','y','z');
-ylim([-5 15]);
+ylim([-0.5 1.5]);
+xlabel('Time (sec)')
+ylabel("Acceleration(g's)");
 aMotion = aRaw - gVector;
 % subplot(2,2,3);
 % plot(t,aRaw0);
@@ -212,21 +210,20 @@ aMotion = aRaw - gVector;
 anglesDC = rad2deg(abs(acos(aEst)));
 figure (2);
 subplot(3,2,5);
-plot(t,anglesDC);
+plot(timeInS,anglesDC);
 title('Angles of DCs with each axis');
 legend('x','y','z');
+xlabel('Time (sec)')
+ylabel({"Euler Angles ";"(Degree's)"});
 
 
 figure (2);
 subplot(3,2,6);
-plot(t,aMotion);
-title('Linear Motion');
+plot(timeInS,aMotion);
+title('Dynamic Motion');
 legend('x','y','z');
-
-timeInS = zeros(len,1,'double');
-for i = 2:len
-    timeInS(i) = timeInS(i-1) + (t(i) - t(i-1));
-end
+xlabel('Time (sec)')
+ylabel("Acceleration(g's)");
 
 DisplacementmagNoG = findDisplacement(aMotion, weightGyro2, timeInS);
 
@@ -253,10 +250,11 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aPreviousEst,...
     aEst(1) = sind(angleXZcurr) / sqrt(1 + (cosd(angleXZcurr)^2)*(tand(angleYZcurr)^2));
     aEst(2) = sind(angleYZcurr) / sqrt(1 + (cosd(angleYZcurr)^2)*(tand(angleXZcurr)^2));
     aEst(3) =  sign(aPreviousEst(3)) * sqrt(1 - aEst(1)^2 - aEst(2)^2);
+    aEst(3) = 9.8;
 end
 
 function DisplacementmagNoG = findDisplacement(aMotion, weightGyro2, t)
-    gMultiplier = 0.12*4;
+    gMultiplier = 0.6989;
     magNoG = aMotion;
     time = t;
     [dataSize,~] = size(aMotion);
@@ -283,11 +281,11 @@ function DisplacementmagNoG = findDisplacement(aMotion, weightGyro2, t)
     subplot(2,2,1);
     plot(time,aMotion);
     xlabel('Time (sec)');
-    ylabel('Linear Acceleration');
+    ylabel('Dynamic Acceleration');
     legend('x','y','z');
     xlabel('Time (sec)');
     ylabel('Acceleration (m/s^2)');
-    title('Linear Acceleration');
+    title('Dynamic Acceleration');
    
     
     figure (3);
@@ -295,9 +293,9 @@ function DisplacementmagNoG = findDisplacement(aMotion, weightGyro2, t)
     magNoG1 = magNoG * gMultiplier;
     plot(time,magNoG1);
     xlabel('Time (sec)');
-    ylabel('Filtered Linear Acceleration (m/sec^2)');
+    ylabel('Filtered Dynamic Acceleration (m/sec^2)');
     legend('x','y','z');
-    title('Filtered Linear Acceleration');
+    title('Filtered Dynamic Acceleration');
     
     
     % First Integration (Acceleration - Veloicty)

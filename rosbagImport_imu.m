@@ -1,4 +1,5 @@
-clear
+close all
+clear all
 tic
 bagFilename = 'imu_1311_1.bag'; %Filename to be imported
 if(~exist(bagFilename,'file'))

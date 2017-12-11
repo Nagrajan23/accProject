@@ -1,11 +1,11 @@
 close all;
 clear all;
-load('ADSLab_1202_1209.mat')
+load('Lib311_0912_1716.mat')
 % importRaspPi;
 weightGyro = 5;
 avRawSumThresh = 0.5; %old: 0.34
 % gMultiplier = gMultiplier;
-gMultiplier = 1;
+gMultiplier = 0.53;
 
 % aRaw0 = [Untitled.Accelerometer_x,Untitled.Accelerometer_y,Untitled.Accelerometer_z];
 % avRaw0 = [Untitled.Gyroscope_x,Untitled.Gyroscope_y,Untitled.Gyroscope_z];
@@ -21,6 +21,16 @@ len = min(lenA,lenAv);
 aRaw0 = aRaw0(1:len,:);
 avRaw0 = avRaw0(1:len,:);
 t = t(1:len);
+
+
+timeInS = zeros(len,1,'double');
+for i = 2:len
+    if(exist('a','var') == 1)
+        timeInS(i) = timeInS(i-1) + (t(i) - t(i-1));
+    else
+        timeInS(i) = timeInS(i-1) + seconds(t(i) - t(i-1));
+    end
+end
 
 avRaw = avRaw0;
 aRaw1 = aRaw0;
@@ -138,60 +148,78 @@ end
 % aAdjusted = (aRaw + aEst * weightGyro) / (1 + weightGyro);
 
 figure (2);
-subplot(3,2,3);
-plot(t,aAdjusted);
+subplot(3,2,1);
+plot(timeInS,aAdjusted);
 title('Acc Gyro Weight Adjusted');
 legend('x','y','z');
+ylim([-0.5 1.5]);
+ylabel("Unit Vector (g's)")
+xlabel('Time (sec)')
+
 figure (2);
-subplot(3,2,1);
-plot(t,aEst);
+subplot(3,2,2);
+plot(timeInS,aEst);
 title('Gyro Estimated DCs');
+ylim([-0.5 1.5]);
 legend('x','y','z');
+ylabel("Unit Vector (g's)")
+xlabel('Time (sec)')
 
 gSph = zeros(len,3,'double');
 gSphDegree = zeros(len,3,'double');
 [gSph(:,1),gSph(:,2),gSph(:,3)] = cart2sph(aAdjusted(:,1),aAdjusted(:,2),aAdjusted(:,3));
 gSphDegree(:,1:2) = rad2deg(gSph(:,1:2));
+% figure (2);
+% subplot(3,2,2);
+
 figure (2);
-subplot(3,2,2);
+subplot(3,2,3);
+plot(timeInS,gSphDegree(:,1:2));
+title('Theta Phi of DCs');
+legend('Azimuth Angle','Polar Angle');
+xlabel('Time (sec)')
+ylabel({"Azimuth and"; "Polar Angles"; "(Degree's)"});
+
+
 % plot(t,gSphDegree(:,1:2));
 % title('Theta Phi of DCs');
 % legend('Theta','Phi');
-plot(t,aRaw);
-title('Raw Acc Filtered');
-legend('x','y','z');
+% plot(t,aRaw);
+% title('Raw Acc Filtered');
+% legend('x','y','z');
 
 gVector = zeros(len,3,'double');
 gSph(:,3) = gMean;
 [gVector(:,1),gVector(:,2),gVector(:,3)] = sph2cart(gSph(:,1),gSph(:,2),gSph(:,3));
 figure (2);
 subplot(3,2,4);
-plot(t,gVector);
+plot(timeInS,gVector/9.8);
 title('Gravity Vector Cartesian');
+ylim([-0.5 1.5]);
 legend('x','y','z');
+xlabel('Time (sec)')
+ylabel("Acceleration(g's)");
+
+
 aMotion = aRaw - gVector;
 
 anglesDC = rad2deg(abs(acos(aEst)));
 figure (2);
 subplot(3,2,5);
-plot(t,anglesDC);
+plot(timeInS,anglesDC);
 title('Angles of DCs with each axis');
 legend('x','y','z');
+xlabel('Time (sec)')
+ylabel({"Euler Angles ";"(Degree's)"});
 
 figure (2);
 subplot(3,2,6);
-plot(t,aMotion);
-title('Linear Motion');
+plot(timeInS,aMotion/9.8);
+title('Dynamic Motion');
 legend('x','y','z');
+xlabel('Time (sec)')
+ylabel("Acceleration(g's)");
 
-timeInS = zeros(len,1,'double');
-for i = 2:len
-    if(exist('a','var') == 1)
-        timeInS(i) = timeInS(i-1) + (t(i) - t(i-1));
-    else
-        timeInS(i) = timeInS(i-1) + seconds(t(i) - t(i-1));
-    end
-end
 
 findDisplacement(aMotion, weightGyro2, timeInS);
 
@@ -218,7 +246,7 @@ function [aEst,angles] = findEstimate(avCurrentRaw, aCurrentRaw,...
 end
 
 function findDisplacement(aMotion, weightGyro2, t)
-    gMultiplier = 1;
+    gMultiplier = 0.53;
     magNoG = aMotion;
     time = t;
     [dataSize,~] = size(aMotion);
@@ -243,17 +271,19 @@ function findDisplacement(aMotion, weightGyro2, t)
    magNoG = aMotion;
     figure (3);
     subplot(2,2,1);
-    plot(time,aMotion);
+    plot(time,aMotion/9.8);
+    title('Dynamic Acceleration');
     xlabel('Time (sec)');
-    ylabel('Linear Acceleration');
+    ylabel('Dynamic Acceleration');
     legend('x','y','z');
     
     figure (3);
     subplot(2,2,3);
     magNoG1 = magNoG * gMultiplier;
-    plot(time,magNoG1);
+    plot(time,magNoG1/9.8);
+    title('Filtered Dynamic Acceleration');
     xlabel('Time (sec)');
-    ylabel('Filtered Linear Acceleration (m/sec^2)');
+    ylabel('Filtered Dynamic Acceleration (m/sec^2)');
     legend('x','y','z');
     
     % First Integration (Acceleration - Veloicty)
@@ -268,6 +298,7 @@ function findDisplacement(aMotion, weightGyro2, t)
     subplot(2,2,2);
     velmagNoG1 = velmagNoG * gMultiplier;
     plot(time,velmagNoG1);
+    title('Velocity');
     xlabel('Time (sec)');
     ylabel('Velocity (m/sec)');
     legend('x','y','z');    
@@ -277,6 +308,7 @@ function findDisplacement(aMotion, weightGyro2, t)
     subplot(2,2,4);
     DisplacementmagNoG1 = DisplacementmagNoG * gMultiplier;
     plot(time,DisplacementmagNoG1);
+    title('Displacement'); 
     xlabel('Time (sec)')
     ylabel('Displacement (m)');
     legend('x','y','z');
